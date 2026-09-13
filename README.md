@@ -1,4 +1,4 @@
-# Meeting Scribe
+# 听记 / Hearnotes
 
 本地离线录音转写与说话人分离桌面应用<br>
 Local, offline audio transcription and speaker diarization for Windows
@@ -13,7 +13,7 @@ Local, offline audio transcription and speaker diarization for Windows
 
 ### 软件简介
 
-Meeting Scribe 是一款 Windows 桌面录音转写工具。它在本机完成语音识别和说话人分离，将不同声音标记为 A、B、C 等，并提供逐段回听、文字校对、发言人调整、统一改名和结果导出功能。
+听记是一款 Windows 桌面录音转写工具。它在本机完成语音识别和说话人分离，将不同声音标记为 A、B、C 等，并提供逐段回听、文字校对、发言人调整、统一改名和结果导出功能。
 
 正常转写不会将录音上传到云端，也不需要语音识别 API Key。首次下载模型、检查模型更新和检查软件更新时需要联网。
 
@@ -34,7 +34,7 @@ Meeting Scribe 是一款 Windows 桌面录音转写工具。它在本机完成�
 1. 打开仓库右侧的 [Releases](https://github.com/KonaLz/meeting-scribe-tauri/releases)。
 2. 下载最新的 Windows 安装程序，文件名通常以 `Setup.exe` 或 `.msi` 结尾。
 3. 运行安装程序并按照提示完成安装。
-4. 启动 Meeting Scribe。首次使用时按照界面提示下载所需模型。
+4. 启动听记。首次使用时按照界面提示下载所需模型。
 5. 导入录音，确认语言、发言人数和处理方式，然后开始转写。
 
 当前项目仍处于发布准备阶段。如果 Releases 页面尚无安装包，说明第一个可安装版本还没有发布。
@@ -69,7 +69,7 @@ npm run tauri:dev
 
 ### 许可证
 
-Meeting Scribe 的原创代码依据 [MIT License](LICENSE) 发布。第三方模型和依赖不因本项目采用 MIT License 而改变其原始许可证。
+听记的原创代码依据 [MIT License](LICENSE) 发布。第三方模型和依赖不因本项目采用 MIT License 而改变其原始许可证。
 
 ---
 
@@ -77,7 +77,7 @@ Meeting Scribe 的原创代码依据 [MIT License](LICENSE) 发布。第三方�
 
 ### Overview
 
-Meeting Scribe is a Windows desktop application for local audio transcription and speaker diarization. It labels distinct voices as A, B, C, and so on, then provides segment playback, transcript correction, speaker reassignment, global speaker renaming, and export.
+Hearnotes is a Windows desktop application for local audio transcription and speaker diarization. It labels distinct voices as A, B, C, and so on, then provides segment playback, transcript correction, speaker reassignment, global speaker renaming, and export.
 
 Normal transcription stays on the local computer and does not require a speech API key. Network access is required to download or update models and to check for application updates.
 
@@ -98,7 +98,7 @@ Normal transcription stays on the local computer and does not require a speech A
 1. Open the repository's [Releases](https://github.com/KonaLz/meeting-scribe-tauri/releases) page.
 2. Download the latest Windows installer, normally named `Setup.exe` or ending in `.msi`.
 3. Run the installer and follow the setup prompts.
-4. Start Meeting Scribe and download the required models when prompted on first use.
+4. Start Hearnotes and download the required models when prompted on first use.
 5. Import an audio file, review the language, speaker count, and processing mode, then start transcription.
 
 The project is currently being prepared for its first release. If the Releases page has no installer, an installable version has not been published yet.
@@ -133,4 +133,5 @@ See the [release guide](docs/RELEASE.md) for packaging and signing.
 
 ### License
 
-Original Meeting Scribe code is released under the [MIT License](LICENSE). Third-party models and dependencies retain their own licenses.
+Original Hearnotes code is released under the [MIT License](LICENSE). Third-party models and dependencies retain their own licenses.
+

@@ -3,7 +3,7 @@
 // All user-facing copy lives here so wording and translations can be reviewed in one place.
 const translations = {
   zh: {
-    appName: "Meeting Scribe", pageTitle: "Meeting Scribe · Local Transcription",
+    appName: "听记", pageTitle: "听记 · 本地录音转写",
     localOnly: "本机处理 · 无需 API",
     newTranscript: "＋ 新建转写",
     models: "◈ 模型与更新",
@@ -152,20 +152,20 @@ const translations = {
     preparingNow: "正在准备",
     languageUnknown: "自动识别",
     modelGbSentence: "。",
-    quitTitle: "退出 Meeting Scribe？",
+    quitTitle: "退出听记？",
     quitUnsaved: "未保存的修改将丢失。",
     quitRunning: "正在进行的转写会取消，已保存的记录保留。",
     fileTooLarge: "请选择1GB以内的文件。",
     replaySegment: "回听这一段",
     transcriptText: "转写文字",
     pendingSpeaker: "待确认",
-    footer: "Meeting Scribe 1.0 · Desktop",
+    footer: "听记 1.0 · 个人电脑版",
     confirmNo: "取消",
     confirmYes: "确认",
-    quitText: "Meeting Scribe 已退出。可以关闭此页面。"
+    quitText: "听记已退出。可以关闭此页面。"
   },
   ja: {
-    appName: "Meeting Scribe", pageTitle: "Meeting Scribe · ローカル音声文字起こし",
+    appName: "聴き書き", pageTitle: "聴き書き · ローカル音声文字起こし",
     localOnly: "ローカル処理 · API不要",
     newTranscript: "＋ 新しい文字起こし",
     models: "◈ モデルと更新",
@@ -314,20 +314,20 @@ const translations = {
     preparingNow: "準備中",
     languageUnknown: "自動認識",
     modelGbSentence: "。",
-    quitTitle: "Meeting Scribeを終了しますか？",
+    quitTitle: "聴き書きを終了しますか？",
     quitUnsaved: "未保存の変更は失われます。",
     quitRunning: "処理中の文字起こしはキャンセルされ、保存済みの記録は残ります。",
     fileTooLarge: "1GB以内のファイルを選択してください。",
     replaySegment: "この区間を聞き直す",
     transcriptText: "文字起こし",
     pendingSpeaker: "未確認",
-    footer: "Meeting Scribe 1.0 · 個人版",
+    footer: "聴き書き 1.0 · 個人版",
     confirmNo: "キャンセル",
     confirmYes: "確認",
-    quitText: "Meeting Scribeを終了しました。このページを閉じてください。"
+    quitText: "聴き書きを終了しました。このページを閉じてください。"
   },
   en: {
-    appName: "Meeting Scribe", pageTitle: "Meeting Scribe · Local audio transcription",
+    appName: "Hearnotes", pageTitle: "Hearnotes · Local audio transcription",
     localOnly: "Local processing · No API",
     newTranscript: "＋ New transcription",
     models: "◈ Models & updates",
@@ -476,20 +476,21 @@ const translations = {
     preparingNow: "Preparing",
     languageUnknown: "Auto detect",
     modelGbSentence: ".",
-    quitTitle: "Quit Meeting Scribe?",
+    quitTitle: "Quit Hearnotes?",
     quitUnsaved: "Unsaved changes will be lost. ",
     quitRunning: "Any active transcription will be cancelled; saved records remain. ",
     fileTooLarge: "Choose a file up to 1 GB.",
     replaySegment: "Replay this segment",
     transcriptText: "Transcript text",
     pendingSpeaker: "Unconfirmed",
-    footer: "Meeting Scribe 1.0 · Personal edition",
+    footer: "Hearnotes 1.0 · Personal edition",
     confirmNo: "Cancel",
     confirmYes: "Confirm",
-    quitText: "Meeting Scribe has exited. You can close this page and start it again next time."
+    quitText: "Hearnotes has exited. You can close this page and start it again next time."
   }
 };
 let displayLanguage = localStorage.getItem("meetingScribe.displayLanguage") ||    
   ({ ja: "ja", en: "en" }[String(navigator.language || "").slice(0, 2)] || "zh");
 function tr(key) { return (translations[displayLanguage] || translations.zh)[key] || translations.zh[key] || key; }
 function trf(key, values) { return tr(key).replace(/\{(\w+)\}/g, (_, name) => values?.[name] ?? ""); }
+
