@@ -13,6 +13,9 @@ src-tauri/binaries/*.exe
 src-tauri/target/
 dist/
 build/
+__pycache__/
+*.pyc
+*.wav
 *.key
 *.key.pub
 *.sig
