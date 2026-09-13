@@ -17,4 +17,4 @@ with (root/'data'/'startup.log').open('a',encoding='utf-8') as log:
         traceback.print_exc()
         if os.name=='nt':
             import ctypes
-            ctypes.windll.user32.MessageBoxW(0,'启动失败，请查看软件 data 文件夹中的 startup.log。','Meeting Scribe',16)
+            ctypes.windll.user32.MessageBoxW(0,'启动失败，请查看软件 data 文件夹中的 startup.log。','HearNotes',16)

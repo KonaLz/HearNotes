@@ -165,7 +165,7 @@ const translations = {
     quitText: "听记已退出。可以关闭此页面。"
   },
   ja: {
-    appName: "聴き書き", pageTitle: "聴き書き · ローカル音声文字起こし",
+    appName: "聴記", pageTitle: "聴記 · ローカル音声文字起こし",
     localOnly: "ローカル処理 · API不要",
     newTranscript: "＋ 新しい文字起こし",
     models: "◈ モデルと更新",
@@ -314,20 +314,20 @@ const translations = {
     preparingNow: "準備中",
     languageUnknown: "自動認識",
     modelGbSentence: "。",
-    quitTitle: "聴き書きを終了しますか？",
+    quitTitle: "聴記を終了しますか？",
     quitUnsaved: "未保存の変更は失われます。",
     quitRunning: "処理中の文字起こしはキャンセルされ、保存済みの記録は残ります。",
     fileTooLarge: "1GB以内のファイルを選択してください。",
     replaySegment: "この区間を聞き直す",
     transcriptText: "文字起こし",
     pendingSpeaker: "未確認",
-    footer: "聴き書き 1.0 · 個人版",
+    footer: "聴記 1.0 · 個人版",
     confirmNo: "キャンセル",
     confirmYes: "確認",
-    quitText: "聴き書きを終了しました。このページを閉じてください。"
+    quitText: "聴記を終了しました。このページを閉じてください。"
   },
   en: {
-    appName: "Hearnotes", pageTitle: "Hearnotes · Local audio transcription",
+    appName: "HearNotes", pageTitle: "HearNotes · Local audio transcription",
     localOnly: "Local processing · No API",
     newTranscript: "＋ New transcription",
     models: "◈ Models & updates",
@@ -476,17 +476,17 @@ const translations = {
     preparingNow: "Preparing",
     languageUnknown: "Auto detect",
     modelGbSentence: ".",
-    quitTitle: "Quit Hearnotes?",
+    quitTitle: "Quit HearNotes?",
     quitUnsaved: "Unsaved changes will be lost. ",
     quitRunning: "Any active transcription will be cancelled; saved records remain. ",
     fileTooLarge: "Choose a file up to 1 GB.",
     replaySegment: "Replay this segment",
     transcriptText: "Transcript text",
     pendingSpeaker: "Unconfirmed",
-    footer: "Hearnotes 1.0 · Personal edition",
+    footer: "HearNotes 1.0 · Personal edition",
     confirmNo: "Cancel",
     confirmYes: "Confirm",
-    quitText: "Hearnotes has exited. You can close this page and start it again next time."
+    quitText: "HearNotes has exited. You can close this page and start it again next time."
   }
 };
 let displayLanguage = localStorage.getItem("meetingScribe.displayLanguage") ||    

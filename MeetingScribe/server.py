@@ -170,7 +170,7 @@ class Handler(BaseHTTPRequestHandler):
             if parsed.path == '/' and 'key' in query and hmac.compare_digest(query['key'][0], self.server.key):
                 return self.send_bytes(b'', status=303, headers={'Location': '/', 'Set-Cookie': f'scribe={self.server.key}; Path=/; HttpOnly; SameSite=Strict'})
             if not self.authenticated():
-                return self.send_bytes('请通过 Meeting Scribe 桌面应用打开，或从源码运行 launch.py。'.encode(), 'text/plain; charset=utf-8', 403)
+                return self.send_bytes('请通过 HearNotes 桌面应用打开，或从源码运行 launch.py。'.encode(), 'text/plain; charset=utf-8', 403)
             path = parsed.path
             manager = self.server.manager
             # 静态页面和脚本也必须经过同一个本机 Cookie 校验。

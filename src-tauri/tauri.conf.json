@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Hearnotes",
+  "productName": "HearNotes",
   "version": "1.0.1",
   "identifier": "com.konalz.meetingscribe",
   "build": {
@@ -11,7 +11,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Hearnotes · Local Transcription",
+        "title": "HearNotes · Local Transcription",
         "url": "http://127.0.0.1:28661",
         "width": 1280,
         "height": 860,

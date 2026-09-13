@@ -27,7 +27,7 @@ GitHub Actions builds Windows NSIS/MSI installers
     ↓
 Signed artifacts and latest.json are attached to the public GitHub Release
     ↓
-Meeting Scribe checks latest.json and asks before installing the update
+HearNotes checks latest.json and asks before installing the update
 ```
 
 Example / 示例：

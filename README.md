@@ -1,4 +1,4 @@
-# 听记 / Hearnotes
+# 听记 / HearNotes
 
 本地离线录音转写与说话人分离桌面应用<br>
 Local, offline audio transcription and speaker diarization for Windows
@@ -77,7 +77,7 @@ npm run tauri:dev
 
 ### Overview
 
-Hearnotes is a Windows desktop application for local audio transcription and speaker diarization. It labels distinct voices as A, B, C, and so on, then provides segment playback, transcript correction, speaker reassignment, global speaker renaming, and export.
+HearNotes is a Windows desktop application for local audio transcription and speaker diarization. It labels distinct voices as A, B, C, and so on, then provides segment playback, transcript correction, speaker reassignment, global speaker renaming, and export.
 
 Normal transcription stays on the local computer and does not require a speech API key. Network access is required to download or update models and to check for application updates.
 
@@ -98,7 +98,7 @@ Normal transcription stays on the local computer and does not require a speech A
 1. Open the repository's [Releases](https://github.com/KonaLz/meeting-scribe-tauri/releases) page.
 2. Download the latest Windows installer, normally named `Setup.exe` or ending in `.msi`.
 3. Run the installer and follow the setup prompts.
-4. Start Hearnotes and download the required models when prompted on first use.
+4. Start HearNotes and download the required models when prompted on first use.
 5. Import an audio file, review the language, speaker count, and processing mode, then start transcription.
 
 The project is currently being prepared for its first release. If the Releases page has no installer, an installable version has not been published yet.
@@ -133,5 +133,5 @@ See the [release guide](docs/RELEASE.md) for packaging and signing.
 
 ### License
 
-Original Hearnotes code is released under the [MIT License](LICENSE). Third-party models and dependencies retain their own licenses.
+Original HearNotes code is released under the [MIT License](LICENSE). Third-party models and dependencies retain their own licenses.
 

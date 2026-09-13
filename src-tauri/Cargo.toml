@@ -1,7 +1,7 @@
 [package]
 name = "meeting-scribe"
 version = "1.0.1"
-description = "Hearnotes local transcription and speaker separation"
+description = "HearNotes local transcription and speaker separation"
 authors = ["KonaLz"]
 edition = "2021"
 license = "MIT"
