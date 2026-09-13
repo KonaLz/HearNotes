@@ -1,0 +1,14 @@
+{
+  "name": "meeting-scribe-tauri",
+  "private": true,
+  "version": "1.0.1",
+  "scripts": {
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "build:engine": "powershell -ExecutionPolicy Bypass -File scripts/build-engine.ps1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.8.0"
+  }
+}

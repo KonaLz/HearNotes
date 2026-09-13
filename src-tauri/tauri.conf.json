@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Meeting Scribe",
+  "version": "1.0.1",
+  "identifier": "com.konalz.meetingscribe",
+  "build": {
+    "frontendDist": "../InterviewScribe/ui",
+    "devUrl": "http://127.0.0.1:28661"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Meeting Scribe · Local Transcription",
+        "url": "http://127.0.0.1:28661",
+        "width": 1280,
+        "height": 860,
+        "minWidth": 980,
+        "minHeight": 680,
+        "resizable": true
+      }
+    ],
+    "security": { "csp": null }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis", "msi"],
+    "createUpdaterArtifacts": true,
+    "externalBin": ["binaries/meeting-scribe-engine"],
+    "windows": {
+      "webviewInstallMode": { "type": "offlineInstaller" }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "REPLACE_WITH_TAURI_PUBLIC_KEY",
+      "endpoints": [
+        "https://github.com/KonaLz/meeting-scribe-releases/releases/latest/download/latest.json"
+      ],
+      "windows": { "installMode": "passive" }
+    }
+  }
+}
