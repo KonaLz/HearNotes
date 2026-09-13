@@ -91,7 +91,7 @@ function applyDisplayLanguage() {
   }
   $("speakers").options[0].textContent = tr("autoSpeakers");
   $("speakers").options[1].textContent = trf("speakerOne", { n: 1 });
-  $("speakers").options[2].textContent = tr("commonInterview");
+  $("speakers").options[2].textContent = tr("commonMeeting");
   for (let i = 3; i < $("speakers").options.length; i++) {
     const count = $("speakers").options[i].value;
     $("speakers").options[i].textContent = trf("speakerMany", { n: count });

@@ -4,6 +4,8 @@ version = "1.0.1"
 description = "Meeting Scribe local transcription and speaker separation"
 authors = ["KonaLz"]
 edition = "2021"
+license = "MIT"
+repository = "https://github.com/KonaLz/meeting-scribe-tauri"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
