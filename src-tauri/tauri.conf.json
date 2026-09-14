@@ -2,9 +2,9 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "HearNotes",
   "version": "1.0.1",
-  "identifier": "com.konalz.meetingscribe",
+  "identifier": "com.konalz.hearnotes",
   "build": {
-    "frontendDist": "../MeetingScribe/ui",
+    "frontendDist": "../HearNotes/ui",
     "devUrl": "http://127.0.0.1:28661"
   },
   "app": {
@@ -13,6 +13,7 @@
         "label": "main",
         "title": "HearNotes · Local Transcription",
         "url": "http://127.0.0.1:28661",
+        "dragDropEnabled": false,
         "width": 1280,
         "height": 860,
         "minWidth": 980,
@@ -24,18 +25,50 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis", "msi"],
+    "targets": ["nsis"],
+    "icon": ["icons/icon.ico"],
+    "resources": {
+      "../HearNotes/ui/": "ui/",
+      "../HearNotes/runtime-cuda/": "runtime-cuda/",
+      "../.audio-tools/faster_whisper/": ".audio-tools/faster_whisper/",
+      "../.audio-tools/ctranslate2/": ".audio-tools/ctranslate2/",
+      "../.audio-tools/av/": ".audio-tools/av/",
+      "../.audio-tools/av.libs/": ".audio-tools/av.libs/",
+      "../.audio-tools/tokenizers/": ".audio-tools/tokenizers/",
+      "../.audio-tools/numpy/": ".audio-tools/numpy/",
+      "../.audio-tools/numpy.libs/": ".audio-tools/numpy.libs/",
+      "../.audio-tools/yaml/": ".audio-tools/yaml/",
+      "../.audio-tools/tqdm/": ".audio-tools/tqdm/",
+      "../.audio-tools/packaging/": ".audio-tools/packaging/",
+      "../.audio-tools/filelock/": ".audio-tools/filelock/",
+      "../.audio-tools/fsspec/": ".audio-tools/fsspec/",
+      "../.audio-tools/huggingface_hub/": ".audio-tools/huggingface_hub/",
+      "../.audio-tools/httpx/": ".audio-tools/httpx/",
+      "../.audio-tools/httpcore/": ".audio-tools/httpcore/",
+      "../.audio-tools/anyio/": ".audio-tools/anyio/",
+      "../.audio-tools/certifi/": ".audio-tools/certifi/",
+      "../.audio-tools/idna/": ".audio-tools/idna/",
+      "../.audio-tools/h11/": ".audio-tools/h11/",
+      "../.audio-tools/click/": ".audio-tools/click/",
+      "../.audio-tools/colorama/": ".audio-tools/colorama/",
+      "../.audio-tools/flatbuffers/": ".audio-tools/flatbuffers/",
+      "../.audio-tools/onnxruntime/": ".audio-tools/onnxruntime/",
+      "../.audio-tools/typing_extensions.py": ".audio-tools/typing_extensions.py"
+    },
     "createUpdaterArtifacts": true,
-    "externalBin": ["binaries/meeting-scribe-engine"],
+    "externalBin": ["binaries/hearnotes-engine"],
     "windows": {
-      "webviewInstallMode": { "type": "offlineInstaller" }
+      "webviewInstallMode": { "type": "offlineInstaller" },
+      "nsis": {
+        "installerHooks": "nsis/hooks.nsh"
+      }
     }
   },
   "plugins": {
     "updater": {
       "pubkey": "REPLACE_WITH_TAURI_PUBLIC_KEY",
       "endpoints": [
-        "https://github.com/KonaLz/meeting-scribe-tauri/releases/latest/download/latest.json"
+        "https://github.com/KonaLz/HearNotes/releases/latest/download/latest.json"
       ],
       "windows": { "installMode": "passive" }
     }

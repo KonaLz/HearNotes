@@ -1,11 +1,11 @@
 [package]
-name = "meeting-scribe"
+name = "hearnotes"
 version = "1.0.1"
 description = "HearNotes local transcription and speaker separation"
 authors = ["KonaLz"]
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/KonaLz/meeting-scribe-tauri"
+repository = "https://github.com/KonaLz/HearNotes"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
@@ -14,6 +14,7 @@ tauri-build = { version = "2", features = [] }
 tauri = { version = "2", features = [] }
 tauri-plugin-shell = "2"
 tauri-plugin-updater = "2"
+serde_json = "1"
 
 [features]
 custom-protocol = ["tauri/custom-protocol"]

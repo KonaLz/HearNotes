@@ -17,11 +17,11 @@ import uuid
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from bootstrap import ROOT, paths_ready
+from bootstrap import ROOT, DATA_ROOT, FROZEN, paths_ready
 from core import atomic_json, apply_edits, export
 import models
 
-DATA = ROOT / 'data'
+DATA = DATA_ROOT
 JOBS = DATA / 'jobs'
 INSTANCE = DATA / 'instance.json'
 for folder in [DATA, JOBS]: folder.mkdir(exist_ok=True)
@@ -61,7 +61,9 @@ class Manager:
             if self.busy(): raise ValueError('已有任务正在进行，请等完成后再开始。')
             log = (folder / 'worker.log').open('w', encoding='utf-8')
             try:
-                self.process = subprocess.Popen([sys.executable, str(ROOT / 'worker.py'), str(folder)],
+                command = ([sys.executable, '--worker', str(folder)] if FROZEN else
+                           [sys.executable, str(ROOT / 'worker.py'), str(folder)])
+                self.process = subprocess.Popen(command,
                     cwd=ROOT, stdout=log, stderr=subprocess.STDOUT,
                     creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
             finally: log.close()
@@ -108,7 +110,7 @@ class Manager:
                 return
             if action == 'install' and not self.plan: raise ValueError('请先检查更新。')
             self.maintenance = True
-            self.update = {'status': 'running', 'stage': '正在检查更新' if action == 'check' else '准备下载', 'progress': 0}
+            self.update = {'status': 'running', 'stage': '正在检查可下载模型' if action in {'check', 'bootstrap'} else '准备下载', 'progress': 0}
         def task():
             try:
                 if action == 'check':
@@ -116,6 +118,9 @@ class Manager:
                     with self.lock: self.plan = plan
                     stage = '有可用更新／可同步官方版本' if plan['asr_available'] or plan['voices_available'] else '当前模型已是最新版本'
                 else:
+                    if action == 'bootstrap':
+                        plan = models.check()
+                        with self.lock: self.plan = plan
                     def notify(stage, value):
                         with self.lock: self.update = {'status': 'running', 'stage': stage, 'progress': value}
                     models.install(self.plan, notify)
@@ -124,20 +129,27 @@ class Manager:
                 with self.lock: self.update = {'status': 'complete', 'stage': stage, 'progress': 100}
             except Exception as error:
                 with self.lock:
-                    self.update = {'status': 'error', 'stage': '更新未完成，原模型仍可使用', 'error': str(error), 'progress': 0}
+                    current = models.state()
+                    asr_ready = Path(current['active']['asr']['path']) / 'model.bin'
+                    voice_root = Path(current['active']['voices']['path'])
+                    old_ready = (asr_ready.is_file() and
+                                 (voice_root / 'segmentation.onnx').is_file() and
+                                 (voice_root / 'speaker.onnx').is_file())
+                    stage = '更新未完成，原模型仍可使用' if old_ready else '模型安装失败，尚未启用'
+                    self.update = {'status': 'error', 'stage': stage, 'error': str(error), 'progress': 0}
             finally:
                 with self.lock: self.maintenance = False
         threading.Thread(target=task, daemon=True).start()
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = 'MeetingScribe/1.0'
+    server_version = 'HearNotes/1.0'
     def log_message(self, *args): pass
 
     def authenticated(self):
         # 启动时生成的随机 Cookie 只用于保护本机端口，避免被其他网页调用。
         cookie = self.headers.get('Cookie', '')
         token = next((v.partition('=')[2] for v in cookie.split('; ') if v.startswith('scribe=')), '')
-        if os.environ.get('MEETINGSCRIBE_TAURI') == '1' and self.valid_host():
+        if os.environ.get('HEARNOTES_TAURI') == '1' and self.valid_host():
             return True
         return hmac.compare_digest(token, self.server.key)
 
@@ -174,17 +186,40 @@ class Handler(BaseHTTPRequestHandler):
             path = parsed.path
             manager = self.server.manager
             # 静态页面和脚本也必须经过同一个本机 Cookie 校验。
-            if path in {'/', '/app.js', '/i18n.js', '/style.css'}:
-                name = 'index.html' if path == '/' else path[1:]
+            static_files = {
+                '/': 'index.html',
+                '/app.js': 'app.js',
+                '/i18n.js': 'i18n.js',
+                '/style.css': 'style.css',
+                '/brand.css': 'brand.css',
+                '/assets/hearnotes-icon.png': 'assets/hearnotes-icon.png',
+            }
+            if path in static_files:
+                name = static_files[path]
                 return self.send_bytes((ROOT / 'ui' / name).read_bytes(), mimetypes.guess_type(name)[0] + '; charset=utf-8')
             if path == '/api/config':
-                return self.reply({'ready': paths_ready(), 'busy': manager.busy(), 'version': '1.0.1'})
+                with manager.lock:
+                    plan = manager.plan
+                    update_available = bool(plan and
+                                            (plan.get('asr_available') or plan.get('voices_available')))
+                    return self.reply({'ready': paths_ready(), 'busy': manager.busy(),
+                                       'model_update': manager.update,
+                                       'model_update_available': update_available,
+                                       'version': '1.0.1'})
             if path == '/api/jobs':
                 records = [manager.summary(f) for f in JOBS.iterdir() if f.is_dir() and (f/'job.json').is_file()]
                 return self.reply(sorted(records, key=lambda x: x.get('created', 0), reverse=True))
             if path == '/api/models':
                 with manager.lock:
-                    return self.reply({'state': models.state(), 'update': manager.update, 'plan': manager.plan, 'busy': manager.busy()})
+                    current = models.state()
+                    asr = Path(current['active']['asr']['path'])
+                    voices = Path(current['active']['voices']['path'])
+                    model_ready = {
+                        'asr': (asr / 'model.bin').is_file(),
+                        'voices': (voices / 'segmentation.onnx').is_file() and (voices / 'speaker.onnx').is_file(),
+                    }
+                    return self.reply({'state': current, 'model_ready': model_ready,
+                                       'update': manager.update, 'plan': manager.plan, 'busy': manager.busy()})
             match = re.fullmatch(r'/api/jobs/([a-f0-9]{32})(?:/(result|audio|export))?', path)
             if match:
                 folder = manager.folder(match[1]); action = match[2]
@@ -254,7 +289,7 @@ class Handler(BaseHTTPRequestHandler):
                     if manager.busy(): raise ValueError('任务进行中，请稍后修改设置。')
                     value = models.state(); value['check_on_start'] = bool(payload.get('check_on_start')); models.save(value)
                 return self.reply({'ok': True})
-            if parsed.path in {'/api/models/check','/api/models/install','/api/models/rollback'}:
+            if parsed.path in {'/api/models/check','/api/models/install','/api/models/rollback','/api/models/bootstrap'}:
                 manager.update_action(parsed.path.rsplit('/',1)[1]); return self.reply({'ok': True})
             if parsed.path == '/api/shutdown':
                 if manager.maintenance: raise ValueError('正在导入或更新，请稍后退出。')
@@ -339,7 +374,7 @@ def main():
                     if not args.no_browser: webbrowser.open(existing['url']+'/?key='+existing['key'])
                     print('Already running',flush=True); return
         except Exception: pass
-    if os.environ.get('MEETINGSCRIBE_TAURI') == '1' and args.port == 0:
+    if os.environ.get('HEARNOTES_TAURI') == '1' and args.port == 0:
         args.port = 28661
     server=ThreadingHTTPServer(('127.0.0.1',args.port),Handler)
     server.daemon_threads=True

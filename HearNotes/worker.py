@@ -181,12 +181,16 @@ def run(job):
                 'speaker_device': speaker_device,
                 'note': '; '.join(x for x in [fallback, speaker_fallback] if x)})
 
-if __name__ == '__main__':
+def main(job=None):
+    job = job or sys.argv[1]
     try:
-        run(sys.argv[1])
+        run(job)
     except BaseException as exc:
-        folder = Path(sys.argv[1])
+        folder = Path(job)
         (folder / 'error.log').write_text(traceback.format_exc(), encoding='utf-8')
         atomic_json(folder / 'progress.json', {'status': 'error', 'stage': '处理未完成',
             'progress': 0, 'error': str(exc) or type(exc).__name__})
         sys.exit(1)
+
+if __name__ == '__main__':
+    main()

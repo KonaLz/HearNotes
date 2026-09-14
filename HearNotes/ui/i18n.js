@@ -118,6 +118,11 @@ const translations = {
     keepAwakeShort: "请保持电脑唤醒。",
     readyLocal: "本机模型已就绪",
     missingComponents: "模型尚未就绪",
+    downloadModels: "下载并安装模型（约 3 GB）",
+    goModels: "前往模型与更新",
+    downloadModelsTitle: "下载离线模型？",
+    downloadModelsText: "需要联网下载约 3 GB，包括转写模型和说话人模型。完成后可离线使用。",
+    modelNotInstalled: "未安装，请下载安装",
     networkDisconnected: "软件连接已断开，请重新双击启动程序。",
     operationIncomplete: "操作未完成",
     unsavedChanges: "有未保存的修改",
@@ -280,6 +285,11 @@ const translations = {
     keepAwakeShort: "PCをスリープさせないでください。",
     readyLocal: "ローカルモデルの準備完了",
     missingComponents: "モデルがまだ準備できていません",
+    downloadModels: "モデルをダウンロードしてインストール（約 3 GB）",
+    goModels: "モデルと更新を開く",
+    downloadModelsTitle: "オフラインモデルをダウンロードしますか？",
+    downloadModelsText: "文字起こしモデルと話者モデル、合計約 3 GB をダウンロードします。完了後はオフラインで利用できます。",
+    modelNotInstalled: "未インストール。ダウンロードしてください",
     networkDisconnected: "ソフトとの接続が切れました。もう一度起動してください。",
     operationIncomplete: "操作を完了できませんでした",
     unsavedChanges: "未保存の変更があります",
@@ -442,6 +452,11 @@ const translations = {
     keepAwakeShort: "Please keep the computer awake.",
     readyLocal: "Local models are ready",
     missingComponents: "Models are not ready yet",
+    downloadModels: "Download and install models (about 3 GB)",
+    goModels: "Go to Models & updates",
+    downloadModelsTitle: "Download the offline models?",
+    downloadModelsText: "This downloads about 3 GB for transcription and speaker models. They work offline after installation.",
+    modelNotInstalled: "Not installed — download required",
     networkDisconnected: "The app connection was lost. Please start it again.",
     operationIncomplete: "The operation could not be completed",
     unsavedChanges: "Unsaved changes",
@@ -489,7 +504,7 @@ const translations = {
     quitText: "HearNotes has exited. You can close this page and start it again next time."
   }
 };
-let displayLanguage = localStorage.getItem("meetingScribe.displayLanguage") ||    
+let displayLanguage = localStorage.getItem("hearnotes.displayLanguage") ||    
   ({ ja: "ja", en: "en" }[String(navigator.language || "").slice(0, 2)] || "zh");
 function tr(key) { return (translations[displayLanguage] || translations.zh)[key] || translations.zh[key] || key; }
 function trf(key, values) { return tr(key).replace(/\{(\w+)\}/g, (_, name) => values?.[name] ?? ""); }

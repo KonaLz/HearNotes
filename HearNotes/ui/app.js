@@ -5,7 +5,8 @@ let selectedFile = null,
   result = null,
   dirty = false,
   busy = false,
-  ready = false;
+  ready = false,
+  modelUpdateAvailable = false;
 let view = "new",
   records = [],
   polling = false,
@@ -23,6 +24,21 @@ function statusLabel(status) {
   return tr(statusNames[status] || status || "preparing");
 }
 const audio = $("audio");
+// 模型下载入口统一放在“模型与更新”页；首页只保留快捷跳转。
+document.querySelector(".model-actions").prepend($("download-models"));
+const goModels = document.createElement("button");
+goModels.id = "go-models";
+goModels.className = "secondary attention-button";
+goModels.hidden = true;
+goModels.onclick = () => $("nav-models").click();
+$("readiness").parentElement.append(goModels);
+$("download-models").classList.add("attention-button");
+
+function updateModelsNav() {
+  const needsAttention = !ready || modelUpdateAvailable;
+  $("nav-models").classList.toggle("has-notification", needsAttention);
+  $("nav-models").querySelector(".nav-models-label").textContent = tr("models");
+}
 // Shared translations and display-language state are loaded from /i18n.js.
 // 这里集中保存页面状态；result 是当前录音的可编辑转写结果。
 function replaceLabelText(label, text) {
@@ -45,7 +61,7 @@ function installDisplayLanguagePicker() {
   $("display-language").value = displayLanguage;
   $("display-language").onchange = (event) => {
     displayLanguage = event.target.value;
-    localStorage.setItem("meetingScribe.displayLanguage", displayLanguage);
+    localStorage.setItem("hearnotes.displayLanguage", displayLanguage);
     applyDisplayLanguage();
   };
 }
@@ -62,8 +78,10 @@ function applyDisplayLanguage() {
   $("confirm-no").textContent = tr("confirmNo");
   $("confirm-yes").textContent = tr("confirmYes");
   $("readiness").textContent = ready ? tr("readyLocal") : tr("missingComponents");
+  $("download-models").textContent = tr("downloadModels");
+  $("go-models").textContent = tr("goModels");
   $("nav-new").textContent = tr("newTranscript");
-  $("nav-models").textContent = tr("models");
+  updateModelsNav();
   replaceLabelText(document.querySelector(".local-label"), tr("localOnly"));
   const historyTitle = document.querySelector(".history-title");
   if (historyTitle) historyTitle.innerHTML = `${tr("recent")} <span id="history-count">${records.length}</span>`;
@@ -458,7 +476,12 @@ async function poll() {
     const cfg = await api("/api/config");
     busy = cfg.busy;
     ready = Object.values(cfg.ready).every(Boolean);
+    modelUpdateAvailable = Boolean(cfg.model_update_available);
     $("readiness").textContent = ready ? tr("readyLocal") : tr("missingComponents");
+    $("download-models").hidden = ready;
+    $("download-models").disabled = cfg.busy;
+    $("go-models").hidden = ready;
+    updateModelsNav();
     refreshStart();
     renderHistory();
     if (view === "job" && currentId) {
@@ -722,6 +745,10 @@ async function renderModels() {
   // 模型页只展示版本和更新状态；实际下载由服务端后台线程完成。
   const d = await api("/api/models");
   modelData = d;
+  modelUpdateAvailable = Boolean(
+    d.plan && (d.plan.asr_available || d.plan.voices_available),
+  );
+  updateModelsNav();
   const frag = document.createDocumentFragment();
   for (const [key, title, subtitle] of [
     ["asr", tr("asr"), tr("asrSub")],
@@ -731,12 +758,15 @@ async function renderModels() {
     const desc = el("div");
     desc.append(el("b", "", title), el("small", "", subtitle));
     const version = d.state.active[key].revision;
+    const installed = Boolean(d.model_ready?.[key]);
     row.append(
       desc,
       el(
         "span",
         "version",
-        version === "bundled" ? tr("currentBundled") : version.slice(0, 16),
+        installed
+          ? (version === "bundled" ? tr("currentBundled") : version.slice(0, 16))
+          : tr("modelNotInstalled"),
       ),
     );
     frag.append(row);
@@ -769,6 +799,15 @@ async function modelAction(action) {
   }
 }
 $("check-update").onclick = () => modelAction("check");
+$("download-models").onclick = async () => {
+  if (!(await confirmAction(tr("downloadModelsTitle"), tr("downloadModelsText")))) return;
+  try {
+    await api("/api/models/bootstrap", {});
+    await poll();
+  } catch (e) {
+    toast(e.message);
+  }
+};
 $("install-update").onclick = async () => {
   if (
     await confirmAction(

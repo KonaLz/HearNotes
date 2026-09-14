@@ -20,7 +20,7 @@ for name, url in SOURCES.items():
     target = MODELS / name
     if not target.exists():
         print('Downloading', name, flush=True)
-        req = urllib.request.Request(url, headers={'User-Agent': 'MeetingScribe/1.0'})
+        req = urllib.request.Request(url, headers={'User-Agent': 'HearNotes/1.0'})
         with urllib.request.urlopen(req, timeout=90) as response, target.with_suffix('.part').open('wb') as out:
             shutil.copyfileobj(response, out, 1024 * 1024)
         target.with_suffix('.part').replace(target)
