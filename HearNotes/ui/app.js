@@ -37,7 +37,7 @@ appUpdateCard.innerHTML = `
       <h2 id="app-update-title"></h2>
       <p id="app-update-description" class="muted"></p>
     </div>
-    <span id="app-version" class="pill">1.1.1</span>
+    <span id="app-version" class="pill">1.1.2</span>
   </div>
   <div class="model-actions">
     <button id="check-app-update" class="primary"></button>

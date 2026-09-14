@@ -1,5 +1,11 @@
 # Changelog / 更新日志
 
+## 1.1.2
+
+- Published a uniquely versioned update package to verify the new in-app download progress dialog from 1.1.1. / 发布独立版本的更新包，用于从 1.1.1 实际验证新版应用内下载进度弹窗。
+- Retained the signed update flow and the two-stage background engine cleanup before installation. / 保留签名更新流程及安装前的两阶段后台引擎清理。
+- Refreshed release metadata and architecture documentation for update-path verification. / 更新发布元数据和系统架构文档中的更新路径验证说明。
+
 ## 1.1.1
 
 - Added an in-app update progress dialog with percentage, downloaded size, total size, transfer speed, signature verification, and installation stages. / 增加软件更新进度弹窗，显示百分比、已下载大小、总大小、下载速度、签名验证和安装阶段。

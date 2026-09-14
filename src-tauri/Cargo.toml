@@ -1,6 +1,6 @@
 [package]
 name = "hearnotes"
-version = "1.1.1"
+version = "1.1.2"
 description = "HearNotes local transcription and speaker separation"
 authors = ["KonaLz"]
 edition = "2021"

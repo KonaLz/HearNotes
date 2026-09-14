@@ -1,11 +1,11 @@
 {
-  "version": "1.1.1",
-  "notes": "听记 1.1.1：增加软件更新进度弹窗，显示下载百分比、大小、速度与处理阶段；安装前会完整关闭转写后台，修复引擎文件被占用导致的安装失败。\n\nHearNotes 1.1.1: Adds an update progress dialog with percentage, size, speed, and stage details. The transcription engine is fully stopped before installation to prevent locked-file errors.",
-  "pub_date": "2026-09-14T16:49:00Z",
+  "version": "1.1.2",
+  "notes": "听记 1.1.2：用于实际验证新版更新弹窗，可查看下载百分比、大小、速度、签名验证及后台清理阶段。\n\nHearNotes 1.1.2: Verifies the new update dialog with download percentage, size, speed, signature verification, and background cleanup stages.",
+  "pub_date": "2026-09-14T17:03:56Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUaFdmZjlZdGZnS3lVak0rVnBJYS82a1RRdmFpQmhsam5nQ2pyb2I3Q0dDV3pjU0R0dm9FV2hpSEV5a0dkNzM2YXg4TGNUcXRycjBrK0R1bmcySzFFcTlyUmdEN2c4WEFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5NDA0NTMyCWZpbGU6SGVhck5vdGVzXzEuMS4xX3g2NC1zZXR1cC5leGUKZVN2SXhUMDBzVnFJN05vYXVTdVJQTkdwYi9uKysvR1NKUE1VYmlVb09TTlJRR045OGxYZHNHQlpuT002eTFOWVVYMHVhOXYzSk8xWDUvakdBTGxPQnc9PQo=",
-      "url": "https://github.com/KonaLz/HearNotes/releases/download/v1.1.1/HearNotes_1.1.1_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUaFdmZjlZdGZnS3h2KzFRRjVDT05DQVdmaWpGRlpUYkRNbGZycURwdjBndkk2WkdVNWVxM1pGVit0YXk2d0VBb2xqREpBK2dEZkx3MklXNGhaOXQwWUFySkM5WDAwUFFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5NDA1NDIzCWZpbGU6SGVhck5vdGVzXzEuMS4yX3g2NC1zZXR1cC5leGUKalcydUozSkljVU5mQ3RzdCtVd0lyM2dPcG1mSVIzclVYbW5mekx5N0JmWDIxeEw0aGc0N0xQQ0pHZFhZcVZMSTQ0bGtqWE1OOUhsS2dnN0JOZlV6RHc9PQo=",
+      "url": "https://github.com/KonaLz/HearNotes/releases/download/v1.1.2/HearNotes_1.1.2_x64-setup.exe"
     }
   }
 }
