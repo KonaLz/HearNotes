@@ -81,6 +81,23 @@ PyInstaller 引擎排除 `faster_whisper`、`ctranslate2`、`av` 和 `sherpa_onn
 
 签名私钥仅保存在开发机的 `.signing/` 或发布环境中，不写入仓库，也不随软件分发。用户电脑只保存公钥，不需要 GitHub PAT。软件更新、模型下载和转写数据三条路径彼此独立。
 
+更新顺序如下：
+
+```mermaid
+sequenceDiagram
+    participant UI as HearNotes 界面
+    participant Rust as Tauri 更新模块
+    participant GH as GitHub Release
+    UI->>Rust: 启动时或手动检查
+    Rust->>GH: 获取 latest.json
+    GH-->>Rust: 版本、说明、下载地址、签名
+    Rust-->>UI: 显示可用版本和更新日志
+    UI->>Rust: 用户选择下载安装
+    Rust->>GH: 下载 NSIS 安装包
+    Rust->>Rust: 使用内置公钥验签
+    Rust-->>UI: 验签成功后启动安装
+```
+
 构建入口：
 
 ```powershell

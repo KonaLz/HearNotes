@@ -1,11 +1,11 @@
 {
-  "version": "1.0.2",
-  "notes": "HearNotes 1.0.2 adds signed application update checks, improves model setup guidance, and fixes packaging and cleanup issues.",
-  "pub_date": "2026-09-14T16:03:35Z",
+  "version": "1.1.0",
+  "notes": "听记 1.1：桌面界面改为使用 Tauri 内置资源，修复软件自动更新调用，并加强本机转写接口的来源限制。\n\nHearNotes 1.1: The desktop UI now uses bundled Tauri assets, application update calls are fixed, and access controls for the local transcription API are strengthened.",
+  "pub_date": "2026-09-14T16:21:27Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUaFdmZjlZdGZnSzJ0Nm9XNnY2aXdGUkRrWmh0NCtoMHZKTFhQN3JHMUR2eWwzb2d3MWJMY2VaUzVSRUZtYnlBTTFVUHUzT2V0anRFZEtlNlNsN2tWMzFpSGNPcWlNZXcwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5NDAxODA1CWZpbGU6SGVhck5vdGVzXzEuMC4yX3g2NC1zZXR1cC5leGUKK2Q4NHNYSjZQbE5yZkRPRjFIWlZFYTIzSWFwdU13L1VYR3o1a3N1VHpwbDNZNTZHbVM3QWJnY2hoa1l4SHowSm5kanpHS2hwOTQzY3BZdzRXaGpJRFE9PQo=",
-      "url": "https://github.com/KonaLz/HearNotes/releases/download/v1.0.2/HearNotes_1.0.2_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUaFdmZjlZdGZnS3pEZXFhSXhlb2czM2JzWHBXUjFwbkFuUHVjVEpHbEFEbjJjNWFGdTlZWUU5blV4VDdxK3Bqdkg1TWpYQTByN0VPUldVdDBFRVQxVEhLRlZHM0ZSdUFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5NDAyODc5CWZpbGU6SGVhck5vdGVzXzEuMS4wX3g2NC1zZXR1cC5leGUKS0pqNGZkcXF3NXJ4d25aNzM3SlpnTWZUTkRBL283alV2K0FwNmRMSEZocG1YUU5zTWxSaXhpWEhObkJJcTVDZWNUZHp0RjlHdjVOd1pQcHk5TjhuQ1E9PQo=",
+      "url": "https://github.com/KonaLz/HearNotes/releases/download/v1.1.0/HearNotes_1.1.0_x64-setup.exe"
     }
   }
 }

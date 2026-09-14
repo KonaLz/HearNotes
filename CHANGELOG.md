@@ -1,5 +1,11 @@
 # Changelog / 更新日志
 
+## 1.1.0
+
+- Switched the desktop UI to bundled Tauri assets so signed application updates work without using the Python HTTP page as the window origin. / 桌面界面改为使用 Tauri 内置资源，使签名软件更新不再依赖 Python HTTP 页面作为窗口来源。
+- Restricted the local transcription API to approved Tauri origins and added explicit CORS handling. / 限制本机转写接口仅接受获准的 Tauri 页面来源，并补充明确的跨域处理。
+- Updated the release metadata and architecture documentation for the 1.0.2 to 1.1 update test. / 更新发布元数据和系统架构文档，用于验证从 1.0.2 更新至 1.1。
+
 ## 1.0.2
 
 - Added startup and manual application update checks with signed update installation. / 增加启动时与手动的软件更新检查，并支持签名验证后安装更新。
