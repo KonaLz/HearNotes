@@ -1,6 +1,6 @@
 [package]
 name = "hearnotes"
-version = "1.1.0"
+version = "1.1.1"
 description = "HearNotes local transcription and speaker separation"
 authors = ["KonaLz"]
 edition = "2021"
@@ -14,7 +14,11 @@ tauri-build = { version = "2", features = [] }
 tauri = { version = "2", features = [] }
 tauri-plugin-shell = "2"
 tauri-plugin-updater = "2"
+serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_Threading"] }
 
 [features]
 custom-protocol = ["tauri/custom-protocol"]

@@ -1,5 +1,11 @@
 # Changelog / 更新日志
 
+## 1.1.1
+
+- Added an in-app update progress dialog with percentage, downloaded size, total size, transfer speed, signature verification, and installation stages. / 增加软件更新进度弹窗，显示百分比、已下载大小、总大小、下载速度、签名验证和安装阶段。
+- Fixed Windows update installation failures by stopping the transcription engine process tree and waiting for file handles to be released before launching NSIS; the installer also performs a compatibility cleanup for updates started by older versions. / 修复 Windows 更新安装失败：启动 NSIS 前结束转写引擎进程树并等待文件句柄释放；安装器也会兼容清理由旧版本发起更新时残留的进程。
+- Updated the system architecture documentation and multilingual interface text. / 更新系统架构文档和多语言界面文字。
+
 ## 1.1.0
 
 - Switched the desktop UI to bundled Tauri assets so signed application updates work without using the Python HTTP page as the window origin. / 桌面界面改为使用 Tauri 内置资源，使签名软件更新不再依赖 Python HTTP 页面作为窗口来源。

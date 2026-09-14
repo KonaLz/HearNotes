@@ -72,6 +72,60 @@
   white-space: pre-wrap;
 }
 
+#app-update-progress-dialog {
+  width: min(460px, calc(100vw - 36px));
+  padding: 26px;
+}
+
+.update-dialog-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.update-dialog-heading h2,
+.update-dialog-heading p {
+  margin-bottom: 4px;
+}
+
+.update-dialog-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 50%;
+  background: var(--soft);
+  color: var(--green);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.update-progress-numbers {
+  margin-top: 24px;
+}
+
+#app-progress-percent {
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+}
+
+#app-update-progress-dialog progress {
+  margin: 10px 0 8px;
+}
+
+#app-progress-bar.indeterminate {
+  opacity: .6;
+}
+
+.update-progress-detail {
+  font-variant-numeric: tabular-nums;
+}
+
+#app-update-progress-dialog .actions {
+  margin-top: 18px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .attention-button:not(:disabled):not([hidden]) {
     animation: none;

@@ -37,7 +37,7 @@ appUpdateCard.innerHTML = `
       <h2 id="app-update-title"></h2>
       <p id="app-update-description" class="muted"></p>
     </div>
-    <span id="app-version" class="pill">1.1</span>
+    <span id="app-version" class="pill">1.1.1</span>
   </div>
   <div class="model-actions">
     <button id="check-app-update" class="primary"></button>
@@ -48,6 +48,31 @@ appUpdateCard.innerHTML = `
   <div id="app-update-notes" class="app-update-notes" hidden></div>
 `;
 $("view-models").querySelector(".card").before(appUpdateCard);
+
+const appUpdateDialog = document.createElement("dialog");
+appUpdateDialog.id = "app-update-progress-dialog";
+appUpdateDialog.innerHTML = `
+  <div class="update-dialog-heading">
+    <span class="update-dialog-icon" aria-hidden="true">↓</span>
+    <div>
+      <h2 id="app-progress-title"></h2>
+      <p id="app-progress-phase" class="muted"></p>
+    </div>
+  </div>
+  <div class="row update-progress-numbers">
+    <strong id="app-progress-percent">0%</strong>
+    <span id="app-progress-speed" class="muted">—</span>
+  </div>
+  <progress id="app-progress-bar" max="100" value="0"></progress>
+  <div class="row update-progress-detail">
+    <span id="app-progress-downloaded" class="muted">—</span>
+    <span id="app-progress-total" class="muted">—</span>
+  </div>
+  <p id="app-progress-error" class="error" hidden></p>
+  <div class="actions"><button id="app-progress-close" class="secondary" hidden></button></div>
+`;
+document.body.append(appUpdateDialog);
+let appUpdateProgressTimer = null;
 
 function tauriInvoke(command) {
   const invoke = window.__TAURI_INTERNALS__?.invoke;
@@ -205,6 +230,8 @@ function applyModelsLanguage() {
   $("check-app-update").textContent = tr("checkAppUpdate");
   $("install-app-update").textContent = tr("installAppUpdate");
   $("app-check-on-start-label").textContent = tr("appCheckOnStart");
+  $("app-progress-title").textContent = tr("appProgressTitle");
+  $("app-progress-close").textContent = tr("close");
   $("check-update").textContent = tr("checkUpdate"); $("install-update").textContent = tr("installUpdate"); $("rollback").textContent = tr("rollback");
   $("check-on-start").parentElement.lastChild.textContent = tr("checkOnStart");
   viewModels.querySelector(".notes-card h2").textContent = tr("updateIntro");
@@ -866,16 +893,78 @@ async function checkSoftwareUpdate(silent = false) {
   }
 }
 
+function formatUpdateBytes(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "0 MB";
+  if (bytes >= 1024 ** 3) return (bytes / 1024 ** 3).toFixed(2) + " GB";
+  return (bytes / 1024 ** 2).toFixed(1) + " MB";
+}
+
+function renderAppUpdateProgress(progress) {
+  const phaseKeys = {
+    checking: "appProgressChecking",
+    downloading: "appProgressDownloading",
+    verifying: "appProgressVerifying",
+    stopping: "appProgressStopping",
+    installing: "appProgressInstalling",
+    error: "appProgressError",
+  };
+  const percent = Number.isFinite(progress.percent)
+    ? Math.max(0, Math.min(100, progress.percent))
+    : null;
+  $("app-progress-phase").textContent = tr(phaseKeys[progress.phase] || "appProgressPreparing");
+  $("app-progress-percent").textContent = percent === null ? "—" : percent.toFixed(1) + "%";
+  $("app-progress-bar").value = percent || 0;
+  $("app-progress-bar").classList.toggle("indeterminate", percent === null);
+  $("app-progress-downloaded").textContent = trf("appProgressDownloaded", {
+    size: formatUpdateBytes(progress.downloaded),
+  });
+  $("app-progress-total").textContent = progress.total
+    ? trf("appProgressTotal", { size: formatUpdateBytes(progress.total) })
+    : tr("appProgressTotalUnknown");
+  $("app-progress-speed").textContent = progress.bytesPerSecond
+    ? trf("appProgressSpeed", { speed: formatUpdateBytes(progress.bytesPerSecond) + "/s" })
+    : "—";
+}
+
+async function pollAppUpdateProgress() {
+  try {
+    renderAppUpdateProgress(await tauriInvoke("get_app_update_progress"));
+  } catch (_) {
+    // 主下载命令会显示最终错误；短暂轮询失败不覆盖它。
+  }
+}
+
+function stopAppUpdateProgressPolling() {
+  if (appUpdateProgressTimer) clearInterval(appUpdateProgressTimer);
+  appUpdateProgressTimer = null;
+}
+
+$("app-progress-close").onclick = () => appUpdateDialog.close();
+appUpdateDialog.addEventListener("cancel", (event) => {
+  if ($("app-progress-close").hidden) event.preventDefault();
+});
+
 $("check-app-update").onclick = () => checkSoftwareUpdate(false);
 $("install-app-update").onclick = async () => {
   if (!(await confirmAction(tr("installAppUpdateTitle"), tr("installAppUpdateText")))) return;
   $("install-app-update").disabled = true;
   $("app-update-status").textContent = tr("appUpdateInstalling");
+  $("app-progress-error").hidden = true;
+  $("app-progress-close").hidden = true;
+  renderAppUpdateProgress({ phase: "checking", downloaded: 0, total: null, bytesPerSecond: 0, percent: null });
+  appUpdateDialog.showModal();
+  stopAppUpdateProgressPolling();
+  appUpdateProgressTimer = setInterval(pollAppUpdateProgress, 250);
   try {
     await tauriInvoke("install_app_update");
   } catch (error) {
+    stopAppUpdateProgressPolling();
     $("install-app-update").disabled = false;
     $("app-update-status").textContent = tr("appUpdateFailed") + "：" + error;
+    $("app-progress-phase").textContent = tr("appProgressError");
+    $("app-progress-error").textContent = String(error);
+    $("app-progress-error").hidden = false;
+    $("app-progress-close").hidden = false;
   }
 };
 const appCheckSetting = localStorage.getItem("hearnotes.appCheckOnStart");
