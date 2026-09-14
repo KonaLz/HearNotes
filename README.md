@@ -1,4 +1,11 @@
 # 听记 / HearNotes
+当前项目仍处于开发阶段。可能会存在大量bug, 请在使用时注意。
+本人非专业开发人员，仅作为个人项目学习和使用。
+软件更新随缘，不保证及时发布。
+
+This project is still under development and may contain many bugs. Please use it with care.
+I am not a professional developer; this is a personal project for learning and personal use.
+Updates are released when time permits and may not arrive on a regular schedule.
 
 本地离线录音转写与说话人分离桌面应用<br>
 Local, offline audio transcription and speaker diarization for Windows
@@ -42,8 +49,6 @@ Local, offline audio transcription and speaker diarization for Windows
 3. 运行安装程序并按照提示完成安装。
 4. 启动听记。首次使用时按照界面提示下载所需模型。
 5. 导入录音，确认语言、发言人数和处理方式，然后开始转写。
-
-当前项目仍处于发布准备阶段。如果 Releases 页面尚无安装包，说明第一个可安装版本还没有发布。
 
 ### 模型与出处
 
@@ -90,8 +95,6 @@ Normal transcription stays on the local computer and does not require a speech A
 3. Run the installer and follow the setup prompts.
 4. Start HearNotes and download the required models when prompted on first use.
 5. Import an audio file, review the language, speaker count, and processing mode, then start transcription.
-
-The project is currently being prepared for its first release. If the Releases page has no installer, an installable version has not been published yet.
 
 ### Models and upstream sources
 

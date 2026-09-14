@@ -59,6 +59,19 @@
   display: inline-flex;
 }
 
+.app-update-card { margin-bottom: 22px; }
+.app-update-card .muted { margin-bottom: 0; }
+.app-update-notes {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--soft);
+  color: #52635a;
+  font-size: 12px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .attention-button:not(:disabled):not([hidden]) {
     animation: none;

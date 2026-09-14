@@ -6,7 +6,8 @@ let selectedFile = null,
   dirty = false,
   busy = false,
   ready = false,
-  modelUpdateAvailable = false;
+  modelUpdateAvailable = false,
+  softwareUpdateAvailable = false;
 let view = "new",
   records = [],
   polling = false,
@@ -24,6 +25,33 @@ function statusLabel(status) {
   return tr(statusNames[status] || status || "preparing");
 }
 const audio = $("audio");
+
+// 软件更新由 Tauri 负责下载和验签；此卡片与模型更新分开显示。
+const appUpdateCard = document.createElement("div");
+appUpdateCard.className = "card app-update-card";
+appUpdateCard.innerHTML = `
+  <div class="row">
+    <div>
+      <h2 id="app-update-title"></h2>
+      <p id="app-update-description" class="muted"></p>
+    </div>
+    <span id="app-version" class="pill">1.0.2</span>
+  </div>
+  <div class="model-actions">
+    <button id="check-app-update" class="primary"></button>
+    <button id="install-app-update" class="secondary attention-button" hidden></button>
+  </div>
+  <label class="check-label"><input id="app-check-on-start" type="checkbox"><span id="app-check-on-start-label"></span></label>
+  <div id="app-update-status" class="update-status" role="status"></div>
+  <div id="app-update-notes" class="app-update-notes" hidden></div>
+`;
+$("view-models").querySelector(".card").before(appUpdateCard);
+
+function tauriInvoke(command) {
+  const invoke = window.__TAURI_INTERNALS__?.invoke;
+  if (!invoke) throw Error(tr("appUpdateDesktopOnly"));
+  return invoke(command);
+}
 // 模型下载入口统一放在“模型与更新”页；首页只保留快捷跳转。
 document.querySelector(".model-actions").prepend($("download-models"));
 const goModels = document.createElement("button");
@@ -35,7 +63,7 @@ $("readiness").parentElement.append(goModels);
 $("download-models").classList.add("attention-button");
 
 function updateModelsNav() {
-  const needsAttention = !ready || modelUpdateAvailable;
+  const needsAttention = !ready || modelUpdateAvailable || softwareUpdateAvailable;
   $("nav-models").classList.toggle("has-notification", needsAttention);
   $("nav-models").querySelector(".nav-models-label").textContent = tr("models");
 }
@@ -168,8 +196,13 @@ function applyModelsLanguage() {
   viewModels.querySelector(".eyebrow").textContent = tr("modelsEyebrow");
   viewModels.querySelector("h1").textContent = tr("modelsTitle");
   viewModels.querySelector(".lead").textContent = tr("modelsLead");
-  viewModels.querySelector(".card h2").textContent = tr("modelsUsing");
-  viewModels.querySelector(".card .pill").textContent = tr("noApi");
+  $("model-list").closest(".card").querySelector("h2").textContent = tr("modelsUsing");
+  $("model-list").closest(".card").querySelector(".pill").textContent = tr("noApi");
+  $("app-update-title").textContent = tr("appUpdateTitle");
+  $("app-update-description").textContent = tr("appUpdateDescription");
+  $("check-app-update").textContent = tr("checkAppUpdate");
+  $("install-app-update").textContent = tr("installAppUpdate");
+  $("app-check-on-start-label").textContent = tr("appCheckOnStart");
   $("check-update").textContent = tr("checkUpdate"); $("install-update").textContent = tr("installUpdate"); $("rollback").textContent = tr("rollback");
   $("check-on-start").parentElement.lastChild.textContent = tr("checkOnStart");
   viewModels.querySelector(".notes-card h2").textContent = tr("updateIntro");
@@ -798,6 +831,46 @@ async function modelAction(action) {
     toast(e.message);
   }
 }
+
+async function checkSoftwareUpdate(silent = false) {
+  $("check-app-update").disabled = true;
+  $("app-update-status").textContent = tr("appUpdateChecking");
+  try {
+    const info = await tauriInvoke("check_app_update");
+    softwareUpdateAvailable = Boolean(info.available);
+    $("install-app-update").hidden = !softwareUpdateAvailable;
+    $("app-update-notes").hidden = !softwareUpdateAvailable || !info.notes;
+    $("app-update-notes").textContent = info.notes || "";
+    $("app-update-status").textContent = softwareUpdateAvailable
+      ? trf("appUpdateAvailable", { version: info.version })
+      : tr("appUpdateCurrent");
+    if (softwareUpdateAvailable && !silent) toast(trf("appUpdateAvailable", { version: info.version }));
+    updateModelsNav();
+  } catch (error) {
+    $("app-update-status").textContent = tr("appUpdateFailed") + "：" + error;
+  } finally {
+    $("check-app-update").disabled = false;
+  }
+}
+
+$("check-app-update").onclick = () => checkSoftwareUpdate(false);
+$("install-app-update").onclick = async () => {
+  if (!(await confirmAction(tr("installAppUpdateTitle"), tr("installAppUpdateText")))) return;
+  $("install-app-update").disabled = true;
+  $("app-update-status").textContent = tr("appUpdateInstalling");
+  try {
+    await tauriInvoke("install_app_update");
+  } catch (error) {
+    $("install-app-update").disabled = false;
+    $("app-update-status").textContent = tr("appUpdateFailed") + "：" + error;
+  }
+};
+const appCheckSetting = localStorage.getItem("hearnotes.appCheckOnStart");
+$("app-check-on-start").checked = appCheckSetting === null || appCheckSetting === "true";
+$("app-check-on-start").onchange = () => {
+  localStorage.setItem("hearnotes.appCheckOnStart", String($("app-check-on-start").checked));
+  toast(tr("updateSaved"));
+};
 $("check-update").onclick = () => modelAction("check");
 $("download-models").onclick = async () => {
   if (!(await confirmAction(tr("downloadModelsTitle"), tr("downloadModelsText")))) return;
@@ -857,3 +930,4 @@ $("quit").onclick = async () => {
 };
 poll();
 setInterval(poll, 2500);
+if ($("app-check-on-start").checked) checkSoftwareUpdate(true);

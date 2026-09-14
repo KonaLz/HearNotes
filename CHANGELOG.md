@@ -1,5 +1,12 @@
 # Changelog / 更新日志
 
+## 1.0.2
+
+- Added startup and manual application update checks with signed update installation. / 增加启动时与手动的软件更新检查，并支持签名验证后安装更新。
+- Improved model installation guidance and update notifications. / 改进模型安装引导和更新提醒。
+- Fixed model runtime loading and uninstaller data cleanup issues. / 修复模型运行库加载与卸载残留数据问题。
+- Updated the bilingual README, screenshots, icons, and architecture documentation. / 更新中英文说明、截图、图标和系统架构文档。
+
 ## 1.0.1 (development / 开发版)
 
 - Added the Tauri 2 Windows desktop packaging scaffold. / 增加 Tauri 2 Windows 桌面包装工程骨架。
