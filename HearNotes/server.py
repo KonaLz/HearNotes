@@ -27,6 +27,7 @@ INSTANCE = DATA / 'instance.json'
 for folder in [DATA, JOBS]: folder.mkdir(exist_ok=True)
 MAX_UPLOAD = 1024 ** 3
 EXTENSIONS = {'.mp3', '.wav', '.m4a', '.mp4', '.aac', '.flac', '.ogg', '.webm', '.wma', '.opus'}
+TAURI_ORIGINS = {'http://tauri.localhost', 'https://tauri.localhost', 'tauri://localhost'}
 
 def read_json(path, default=None):
     try: return json.loads(path.read_text(encoding='utf-8'))
@@ -150,8 +151,29 @@ class Handler(BaseHTTPRequestHandler):
         cookie = self.headers.get('Cookie', '')
         token = next((v.partition('=')[2] for v in cookie.split('; ') if v.startswith('scribe=')), '')
         if os.environ.get('HEARNOTES_TAURI') == '1' and self.valid_host():
-            return True
+            return self.request_origin() in TAURI_ORIGINS
         return hmac.compare_digest(token, self.server.key)
+
+    def request_origin(self):
+        origin = self.headers.get('Origin', '')
+        if origin: return origin.rstrip('/')
+        referer = self.headers.get('Referer', '')
+        if referer:
+            parsed = urllib.parse.urlparse(referer)
+            return f'{parsed.scheme}://{parsed.netloc}'.rstrip('/')
+        return ''
+
+    def cors_headers(self):
+        origin = self.headers.get('Origin', '').rstrip('/')
+        if origin in TAURI_ORIGINS:
+            return {
+                'Access-Control-Allow-Origin': origin,
+                'Access-Control-Allow-Headers': 'Content-Type, X-Local-App',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Expose-Headers': 'Content-Disposition, Content-Length',
+                'Vary': 'Origin',
+            }
+        return {}
 
     def send_bytes(self, body, kind='application/json; charset=utf-8', status=200, headers=None):
         self.send_response(status)
@@ -161,7 +183,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('X-Content-Type-Options', 'nosniff')
         self.send_header('Referrer-Policy', 'no-referrer')
         self.send_header('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; media-src 'self' blob:; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'")
-        for k,v in (headers or {}).items(): self.send_header(k,v)
+        combined = {**self.cors_headers(), **(headers or {})}
+        for k,v in combined.items(): self.send_header(k,v)
         self.end_headers()
         try: self.wfile.write(body)
         except (BrokenPipeError, ConnectionResetError): pass
@@ -173,6 +196,11 @@ class Handler(BaseHTTPRequestHandler):
         return self.headers.get('Host') in {
             f'127.0.0.1:{self.server.server_port}', f'localhost:{self.server.server_port}',
             '127.0.0.1:28661', 'localhost:28661'}
+
+    def do_OPTIONS(self):
+        if not self.valid_host() or self.request_origin() not in TAURI_ORIGINS:
+            return self.send_bytes(b'', status=403)
+        self.send_bytes(b'', status=204)
 
     def do_GET(self):
         try:
@@ -205,7 +233,7 @@ class Handler(BaseHTTPRequestHandler):
                     return self.reply({'ready': paths_ready(), 'busy': manager.busy(),
                                        'model_update': manager.update,
                                        'model_update_available': update_available,
-                                       'version': '1.0.1'})
+                                       'version': '1.0.2'})
             if path == '/api/jobs':
                 records = [manager.summary(f) for f in JOBS.iterdir() if f.is_dir() and (f/'job.json').is_file()]
                 return self.reply(sorted(records, key=lambda x: x.get('created', 0), reverse=True))
@@ -257,6 +285,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('Content-Length', str(end-start+1))
         self.send_header('Cache-Control','no-store')
         if status == 206: self.send_header('Content-Range', f'bytes {start}-{end}/{size}')
+        for key, value in self.cors_headers().items(): self.send_header(key, value)
         self.end_headers()
         try:
             with path.open('rb') as source:
@@ -278,7 +307,7 @@ class Handler(BaseHTTPRequestHandler):
             if not self.valid_host() or not self.authenticated(): return self.reply({'error': '请从启动程序打开。'}, 403)
             origin = self.headers.get('Origin', '')
             valid = {f'http://127.0.0.1:{self.server.server_port}', f'http://localhost:{self.server.server_port}',
-                     'http://tauri.localhost', 'http://127.0.0.1:28661', 'http://localhost:28661'}
+                     'http://127.0.0.1:28661', 'http://localhost:28661', *TAURI_ORIGINS}
             if origin not in valid or self.headers.get('X-Local-App') != '1': return self.reply({'error': '请求来源无效。'}, 403)
             parsed = urllib.parse.urlparse(self.path)
             manager = self.server.manager

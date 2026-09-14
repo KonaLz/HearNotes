@@ -1,5 +1,7 @@
 "use strict";
 const $ = (id) => document.getElementById(id);
+const ENGINE_ORIGIN = "http://127.0.0.1:28661";
+const engineUrl = (path) => new URL(path, ENGINE_ORIGIN).href;
 let selectedFile = null,
   currentId = null,
   result = null,
@@ -236,7 +238,7 @@ function toast(text) {
 async function api(path, body) {
   // 所有请求都走同一个本地 API；POST 自动带上本地来源标记。
   const response = await fetch(
-    path,
+    engineUrl(path),
     body === undefined
       ? {}
       : {
@@ -363,7 +365,7 @@ $("start").onclick = () => {
     glossary: $("glossary").value,
   });
   const xhr = new XMLHttpRequest();
-  xhr.open("POST", "/api/upload?" + params);
+  xhr.open("POST", engineUrl("/api/upload?" + params));
   xhr.setRequestHeader("X-Local-App", "1");
   xhr.setRequestHeader("Content-Type", "application/octet-stream");
   xhr.upload.onprogress = (e) => {
@@ -600,7 +602,8 @@ function renderEditor() {
   $("save-indicator").textContent = tr("saveIndicator");
   dirty = false;
   renderNames();
-  audio.src = "/api/jobs/" + currentId + "/audio";
+  audio.crossOrigin = "anonymous";
+  audio.src = engineUrl("/api/jobs/" + currentId + "/audio");
   audio.playbackRate = Number($("speed").value);
   $("search").value = "";
   $("only-review").checked = false;
@@ -754,13 +757,23 @@ async function save() {
 $("save").onclick = save;
 $("export").onclick = async () => {
   if (dirty && !(await save())) return;
-  const a = el("a");
-  a.href =
-    "/api/jobs/" + currentId + "/export?format=" + $("export-format").value;
-  a.download = "";
-  document.body.append(a);
-  a.click();
-  a.remove();
+  try {
+    const format = $("export-format").value;
+    const response = await fetch(
+      engineUrl("/api/jobs/" + currentId + "/export?format=" + format),
+    );
+    if (!response.ok) throw Error(tr("operationIncomplete"));
+    const downloadUrl = URL.createObjectURL(await response.blob());
+    const a = el("a");
+    a.href = downloadUrl;
+    a.download = result.filename.replace(/\.[^.]+$/, "") + "_转写." + format;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(downloadUrl);
+  } catch (error) {
+    toast(error.message);
+  }
 };
 window.addEventListener("beforeunload", (e) => {
   if (dirty) {

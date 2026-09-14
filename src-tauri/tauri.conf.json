@@ -4,15 +4,14 @@
   "version": "1.0.2",
   "identifier": "com.konalz.hearnotes",
   "build": {
-    "frontendDist": "../HearNotes/ui",
-    "devUrl": "http://127.0.0.1:28661"
+    "frontendDist": "../HearNotes/ui"
   },
   "app": {
     "windows": [
       {
         "label": "main",
         "title": "HearNotes · Local Transcription",
-        "url": "http://127.0.0.1:28661",
+        "url": "index.html",
         "dragDropEnabled": false,
         "width": 1280,
         "height": 860,

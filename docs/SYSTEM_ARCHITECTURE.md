@@ -12,8 +12,11 @@ HearNotes 是 Windows 本地离线录音转写与说话人分离桌面应用。T
 
 ```mermaid
 flowchart LR
-    UI[Web UI\nHTML CSS JavaScript] -->|HTTP 127.0.0.1| S[Python server.py]
-    T[Tauri desktop shell] -->|启动并管理| S
+    T[Tauri desktop shell] -->|加载内置资源| UI[Web UI\nHTML CSS JavaScript]
+    T -->|启动并管理| S[Python server.py\n127.0.0.1:28661]
+    UI -->|HTTP + CORS\n仅允许 Tauri 来源| S
+    UI -->|Tauri IPC| U[Rust updater]
+    U -->|HTTPS| REL[GitHub Releases\nlatest.json + 签名安装包]
     S -->|创建处理子进程| W[worker.py]
     W --> A[音频解码\nPyAV]
     W --> ASR[faster-whisper\nWhisper large-v3]
@@ -36,7 +39,7 @@ flowchart LR
 | `HearNotes/core.py` | 转写结果处理、时间对齐、编辑应用和导出格式 |
 | `HearNotes/runtime-cuda/` | sherpa-onnx CUDA 运行库和 ONNX Runtime |
 | `src-tauri/src/main.rs` | Tauri 窗口、sidecar 启动和退出时进程树清理 |
-| `src-tauri/tauri.conf.json` | Tauri 资源、图标、NSIS 和离线 WebView 配置 |
+| `src-tauri/tauri.conf.json` | Tauri 内置页面、资源、图标、NSIS 和签名更新配置 |
 | `src-tauri/nsis/hooks.nsh` | 用户勾选删除应用数据时清理安装目录下的 `data` |
 | `scripts/build-engine.ps1` | 使用 PyInstaller 编译 Python sidecar |
 | `scripts/build-tauri.ps1` | 准备工具链并调用 Tauri 生成安装包 |
@@ -64,9 +67,19 @@ flowchart LR
 
 ## 6. 打包与运行
 
-开发版由 Python 服务直接运行；桌面版由 Tauri 启动 `hearnotes-engine.exe` sidecar。PyInstaller 引擎排除 `faster_whisper`、`ctranslate2`、`av` 和 `sherpa_onnx` 的内嵌副本，改为从安装目录的 `.audio-tools` 和 `runtime-cuda` 资源加载，避免 DLL 版本冲突。
+开发版由 Python 服务直接提供页面；桌面版由 Tauri 从安装包内加载 `HearNotes/ui/`，同时启动 `hearnotes-engine.exe` sidecar。桌面界面不再依赖 `http://127.0.0.1:28661` 提供静态页面，该地址只承载转写、模型和录音数据接口，因此 Tauri 更新命令可以通过内置 IPC 正常调用。
+
+Python 引擎只监听本机回环地址。桌面模式会校验 `Host`、Tauri 页面来源和修改请求中的 `X-Local-App` 标记，并只为 `http://tauri.localhost`、`https://tauri.localhost` 和 `tauri://localhost` 返回跨域许可。普通网站不能借用该端口读取录音或发起任务。源码模式仍使用启动时生成的随机 Cookie 保护本机服务。
+
+PyInstaller 引擎排除 `faster_whisper`、`ctranslate2`、`av` 和 `sherpa_onnx` 的内嵌副本，改为从安装目录的 `.audio-tools` 和 `runtime-cuda` 资源加载，避免 DLL 版本冲突。
 
 安装包使用 NSIS 完整离线 WebView 模式。模型、录音和任务结果不放入安装包，因而安装包不会包含约 3 GB 的 Whisper 模型；模型由用户在软件中按需下载。
+
+## 7. 软件更新
+
+软件启动后默认检查更新，也可以在“模型与更新”页面手动检查。前端通过 Tauri IPC 调用 Rust 更新模块；更新模块从公开 GitHub Release 读取 `latest.json`，比较版本后下载 NSIS 安装包，并使用配置中的公钥验证 `.sig` 签名。只有验签成功的安装包才会进入安装流程。
+
+签名私钥仅保存在开发机的 `.signing/` 或发布环境中，不写入仓库，也不随软件分发。用户电脑只保存公钥，不需要 GitHub PAT。软件更新、模型下载和转写数据三条路径彼此独立。
 
 构建入口：
 
@@ -74,14 +87,14 @@ flowchart LR
 npm run tauri:build
 ```
 
-## 7. 进程和退出处理
+## 8. 进程和退出处理
 
 Tauri 保存 sidecar 的进程句柄。窗口退出时，Windows 使用 `taskkill /PID /T /F` 终止 HearNotes 引擎及其 worker 子进程，避免转写进程在关闭窗口后残留。服务端在关闭时删除本机实例文件，避免下次启动误判为已有实例。
 
-## 8. 已知限制
+## 9. 已知限制
 
 - 说话人 A、B、C 是声音聚类标签，不是身份认证结果。
 - 重叠发言、噪声、回声和远距离录音可能导致说话人归属错误。
 - GPU 模式依赖对应 NVIDIA 驱动和 CUDA/cuDNN 运行库；无法加载时可改用 CPU 或混合模式。
 - 模型下载依赖 Hugging Face 和 GitHub，在网络受限环境中可能需要代理或手动准备模型文件。
-
+- 桌面版引擎当前固定使用本机端口 `28661`；如果该端口被其他程序占用，启动会失败，需要先释放端口。

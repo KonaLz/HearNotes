@@ -1,10 +1,10 @@
 {
   "version": "1.0.2",
   "notes": "HearNotes 1.0.2 adds signed application update checks, improves model setup guidance, and fixes packaging and cleanup issues.",
-  "pub_date": "2026-09-14T15:44:20Z",
+  "pub_date": "2026-09-14T16:03:35Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUaFdmZjlZdGZnSzlqcWN5U3M5a2RkZVY0UUc0ajRxaFV6YjBBemhvckNlMUVZTGxtSFBVZWk1STlqT1MvL2c5ZTRYS0NTVWMyT1c0WUlHaWhZbG5YcjlxcFV5b3dMWUFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5NDAwNjQzCWZpbGU6SGVhck5vdGVzXzEuMC4yX3g2NC1zZXR1cC5leGUKY0JVV0ZtcmRtWFFNaFhBajdaYnlPS0trTnFKd0lnZUt1d0xVWUFIRWJzZTNVclV3T2F5bTZiWjdoSnEzdUxRVFNsYlFONlNxbHYwZ3d1bHY3dXIyQ0E9PQo=",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUaFdmZjlZdGZnSzJ0Nm9XNnY2aXdGUkRrWmh0NCtoMHZKTFhQN3JHMUR2eWwzb2d3MWJMY2VaUzVSRUZtYnlBTTFVUHUzT2V0anRFZEtlNlNsN2tWMzFpSGNPcWlNZXcwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5NDAxODA1CWZpbGU6SGVhck5vdGVzXzEuMC4yX3g2NC1zZXR1cC5leGUKK2Q4NHNYSjZQbE5yZkRPRjFIWlZFYTIzSWFwdU13L1VYR3o1a3N1VHpwbDNZNTZHbVM3QWJnY2hoa1l4SHowSm5kanpHS2hwOTQzY3BZdzRXaGpJRFE9PQo=",
       "url": "https://github.com/KonaLz/HearNotes/releases/download/v1.0.2/HearNotes_1.0.2_x64-setup.exe"
     }
   }
