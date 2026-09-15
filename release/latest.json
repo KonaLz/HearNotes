@@ -1,11 +1,11 @@
 {
-  "version": "1.1.3",
-  "notes": "听记 1.1.3：修复桌面版导出，使用 Windows 原生另存为窗口保存 TXT、Markdown、SRT 或 JSON；同时改进日语界面，并让转写进度随显示语言变化。\n\nHearNotes 1.1.3: Fixes desktop exports with the native Windows Save As dialog for TXT, Markdown, SRT, and JSON; also improves the Japanese interface and localizes live transcription progress.",
-  "pub_date": "2026-09-15T09:36:21Z",
+  "version": "1.1.4",
+  "notes": "听记 1.1.4：修复桌面版导出，使用 Windows 原生另存为窗口保存文件，并补齐转写结果多语言提示。\n\nHearNotes 1.1.4: Fixes desktop exports with the native Windows Save As dialog and completes localization for transcription result messages.",
+  "pub_date": "2026-09-15T11:06:36Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUaFdmZjlZdGZnSzA4Um9HL1ZXZkJhTDlzbWtXS1hnUXJZZzFjcHlGOFIrSkY3UmE3QnhKRWJ3Tm13WGdNQk9HQWdOUE9HdmRHZDJuSkZFUHhGT241bHNqb3hXNk9GT3dNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5NDY0OTMxCWZpbGU6SGVhck5vdGVzXzEuMS4zX3g2NC1zZXR1cC5leGUKN01aSGx6eEl0VjZ3ODBmaUJuV2kwN0NzVlpUeDdJckhRbWI1eFY5N1R1RFJvNkMwbHM2OTZOOFNUK0pKLzZZVGdrZ1BONzJVTTlqRlFIVUxJTTg5QVE9PQo=",
-      "url": "https://github.com/KonaLz/HearNotes/releases/download/v1.1.3/HearNotes_1.1.3_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUaFdmZjlZdGZnS3lHWXk0MVA2a2FUYld3SlN0RlczeXRTNWtRWFpxL1hKck5EL1MwVjl2UnNJaXQ5TmJpdm15eXpnMzdCSXB0c254YnZreGQ1ajlkQStDRkdVb2RVc0EwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5NDcwMzU2CWZpbGU6SGVhck5vdGVzXzEuMS40X3g2NC1zZXR1cC5leGUKSGJab2lPbWRKZ3dKZGxtZDVURlA4VjhQY0crL05vUDVLQWoyS2pFZWFxNXVOU0VnOUxjcFhNNDNPVXFtN1Q4QTJuVDAwbEplOU1PWlhuUExKejczQ2c9PQo=",
+      "url": "https://github.com/KonaLz/HearNotes/releases/download/v1.1.4/HearNotes_1.1.4_x64-setup.exe"
     }
   }
 }

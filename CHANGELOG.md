@@ -1,5 +1,10 @@
 # Changelog / 更新日志
 
+## 1.1.4
+
+- Fixed desktop exports by passing the selected format, filename, and content through Tauri IPC to the native Windows Save As dialog. / 修复桌面版导出，将格式、文件名和内容正确传递到 Tauri，并使用 Windows 原生“另存为”窗口保存。
+- Localized result warnings, review flags, and validation errors in Chinese, Japanese, and English. / 为结果警告、待核标记和校验错误补充中日英翻译。
+
 ## 1.1.3
 
 - Fixed desktop exports by opening the native Windows Save As dialog and writing TXT, Markdown, SRT, or JSON to the user-selected path. / 修复桌面版导出，使用 Windows 原生“另存为”窗口，将 TXT、Markdown、SRT 或 JSON 保存到用户选择的位置。
