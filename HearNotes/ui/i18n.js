@@ -240,7 +240,7 @@ const translations = {
     replaySegment: "回听这一段",
     transcriptText: "转写文字",
     pendingSpeaker: "Needs review",
-    footer: "听记 1.1.4 · 个人电脑版",
+    footer: "听记 1.1.5 · 个人电脑版",
     confirmNo: "取消",
     confirmYes: "确认",
     quitText: "听记已退出。可以关闭此页面。"
@@ -483,7 +483,7 @@ const translations = {
     replaySegment: "この区間を聞き直す",
     transcriptText: "文字起こし",
     pendingSpeaker: "Needs review",
-    footer: "聴記 1.1.4 · 個人版",
+    footer: "聴記 1.1.5 · 個人版",
     confirmNo: "キャンセル",
     confirmYes: "確認",
     quitText: "HearNotesを終了しました。この画面を閉じてください。"
@@ -726,7 +726,7 @@ const translations = {
     replaySegment: "Replay this segment",
     transcriptText: "Transcript text",
     pendingSpeaker: "Needs review",
-    footer: "HearNotes 1.1.4 · Personal edition",
+    footer: "HearNotes 1.1.5 · Personal edition",
     confirmNo: "Cancel",
     confirmYes: "Confirm",
     quitText: "HearNotes has exited. You can close this page and start it again next time."
