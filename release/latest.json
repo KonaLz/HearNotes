@@ -1,11 +1,11 @@
 {
-  "version": "1.1.2",
-  "notes": "听记 1.1.2：用于实际验证新版更新弹窗，可查看下载百分比、大小、速度、签名验证及后台清理阶段。\n\nHearNotes 1.1.2: Verifies the new update dialog with download percentage, size, speed, signature verification, and background cleanup stages.",
-  "pub_date": "2026-09-14T17:03:56Z",
+  "version": "1.1.3",
+  "notes": "听记 1.1.3：修复桌面版导出，使用 Windows 原生另存为窗口保存 TXT、Markdown、SRT 或 JSON；同时改进日语界面，并让转写进度随显示语言变化。\n\nHearNotes 1.1.3: Fixes desktop exports with the native Windows Save As dialog for TXT, Markdown, SRT, and JSON; also improves the Japanese interface and localizes live transcription progress.",
+  "pub_date": "2026-09-15T09:36:21Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUaFdmZjlZdGZnS3h2KzFRRjVDT05DQVdmaWpGRlpUYkRNbGZycURwdjBndkk2WkdVNWVxM1pGVit0YXk2d0VBb2xqREpBK2dEZkx3MklXNGhaOXQwWUFySkM5WDAwUFFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5NDA1NDIzCWZpbGU6SGVhck5vdGVzXzEuMS4yX3g2NC1zZXR1cC5leGUKalcydUozSkljVU5mQ3RzdCtVd0lyM2dPcG1mSVIzclVYbW5mekx5N0JmWDIxeEw0aGc0N0xQQ0pHZFhZcVZMSTQ0bGtqWE1OOUhsS2dnN0JOZlV6RHc9PQo=",
-      "url": "https://github.com/KonaLz/HearNotes/releases/download/v1.1.2/HearNotes_1.1.2_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUaFdmZjlZdGZnSzA4Um9HL1ZXZkJhTDlzbWtXS1hnUXJZZzFjcHlGOFIrSkY3UmE3QnhKRWJ3Tm13WGdNQk9HQWdOUE9HdmRHZDJuSkZFUHhGT241bHNqb3hXNk9GT3dNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5NDY0OTMxCWZpbGU6SGVhck5vdGVzXzEuMS4zX3g2NC1zZXR1cC5leGUKN01aSGx6eEl0VjZ3ODBmaUJuV2kwN0NzVlpUeDdJckhRbWI1eFY5N1R1RFJvNkMwbHM2OTZOOFNUK0pKLzZZVGdrZ1BONzJVTTlqRlFIVUxJTTg5QVE9PQo=",
+      "url": "https://github.com/KonaLz/HearNotes/releases/download/v1.1.3/HearNotes_1.1.3_x64-setup.exe"
     }
   }
 }

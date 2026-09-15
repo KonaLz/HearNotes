@@ -38,7 +38,7 @@ flowchart LR
 | `HearNotes/bootstrap.py` | 运行目录、数据目录、Python 模块和 DLL 搜索路径初始化 |
 | `HearNotes/core.py` | 转写结果处理、时间对齐、编辑应用和导出格式 |
 | `HearNotes/runtime-cuda/` | sherpa-onnx CUDA 运行库和 ONNX Runtime |
-| `src-tauri/src/main.rs` | Tauri 窗口、sidecar 启动和退出时进程树清理 |
+| `src-tauri/src/main.rs` | Tauri 窗口、原生另存为、文件写入、sidecar 启动和退出时进程树清理 |
 | `src-tauri/tauri.conf.json` | Tauri 内置页面、资源、图标、NSIS 和签名更新配置 |
 | `src-tauri/nsis/hooks.nsh` | 用户勾选删除应用数据时清理安装目录下的 `data` |
 | `scripts/build-engine.ps1` | 使用 PyInstaller 编译 Python sidecar |
@@ -54,6 +54,8 @@ flowchart LR
 6. 前端读取结果，支持逐段回听、编辑、统一修改发言人姓名及导出 TXT、Markdown、SRT、JSON。
 
 默认说话人名称统一使用 `Speaker A`、`Speaker B` 等英文形式，不确定项使用 `Needs review`。旧记录中的“说话人 A”“話者 A”等系统默认值会在界面中兼容显示为英文；用户自行修改的姓名保持原样。
+
+桌面版导出时，前端先从本机 Python API 取得 TXT、Markdown、SRT 或 JSON 内容，再调用 Tauri `save_export` 命令打开 Windows 原生“另存为”窗口。Rust 端仅向用户选定的路径写入文件；取消窗口不会生成文件。源码浏览器模式则保留浏览器下载作为兼容路径。
 
 处理进度使用与语言无关的 `stage_key`（例如 `preparing`、`transcribing`、`diarizing`）在 Python 引擎和前端之间传递。前端再根据当前界面语言从 `ui/i18n.js` 取出对应文案，因此处理中切换中文、日文或英文时，进度标题和已知的回退提示会立即更新。旧任务中仅保存的中文阶段名称仍通过兼容映射显示。录音语言只用于语音识别，与界面显示语言相互独立。
 

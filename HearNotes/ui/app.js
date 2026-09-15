@@ -878,24 +878,53 @@ async function save() {
   }
 }
 $("save").onclick = save;
+function exportFileName(format) {
+  const base = result.filename.replace(/\.[^.]+$/, "");
+  return `${base}${tr("exportFileSuffix")}.${format}`;
+}
+function downloadExportInBrowser(contents, fileName, withBom) {
+  const blob = new Blob(withBom ? ["\ufeff", contents] : [contents], {
+    type: "text/plain;charset=utf-8",
+  });
+  const downloadUrl = URL.createObjectURL(blob);
+  const a = el("a");
+  a.href = downloadUrl;
+  a.download = fileName;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(downloadUrl);
+}
 $("export").onclick = async () => {
   if (dirty && !(await save())) return;
+  const button = $("export");
+  button.disabled = true;
   try {
     const format = $("export-format").value;
     const response = await fetch(
       engineUrl("/api/jobs/" + currentId + "/export?format=" + format),
     );
     if (!response.ok) throw Error(tr("operationIncomplete"));
-    const downloadUrl = URL.createObjectURL(await response.blob());
-    const a = el("a");
-    a.href = downloadUrl;
-    a.download = result.filename.replace(/\.[^.]+$/, "") + "_转写." + format;
-    document.body.append(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(downloadUrl);
+    const contents = await response.text();
+    const fileName = exportFileName(format);
+    if (window.__TAURI_INTERNALS__?.invoke) {
+      const outcome = await tauriInvoke("save_export", {
+        suggestedName: fileName,
+        extension: format,
+        dialogTitle: tr("exportDialogTitle"),
+        filterName: $("export-format").selectedOptions[0].textContent,
+        contents,
+        utf8Bom: format === "txt",
+      });
+      if (outcome.saved) toast(trf("exportSaved", { path: outcome.path }));
+    } else {
+      downloadExportInBrowser(contents, fileName, format === "txt");
+      toast(tr("exportDownloaded"));
+    }
   } catch (error) {
-    toast(error.message);
+    toast(trf("exportFailed", { error: error.message }));
+  } finally {
+    button.disabled = false;
   }
 };
 window.addEventListener("beforeunload", (e) => {

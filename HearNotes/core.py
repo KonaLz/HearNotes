@@ -127,6 +127,17 @@ def timestamp(seconds, subtitle=False):
     s, ms = divmod(ms, 1000)
     return f'{h:02}:{m:02}:{s:02},{ms:03}' if subtitle else f'{h:02}:{m:02}:{s:02}'
 
+
+def export_speaker_name(identity, name):
+    """Normalize untouched legacy defaults while preserving user-entered names."""
+    value = str(name or '').strip()
+    if identity == '?' and value in {'待确认', '待確認', '要確認', '確認待ち', 'Needs review', 'Unconfirmed'}:
+        return 'Needs review'
+    prefixes = ('说话人', '說話人', '話者', 'Speaker')
+    if any(value == prefix + ' ' + identity or value == prefix + identity for prefix in prefixes):
+        return 'Speaker ' + identity
+    return value or identity
+
 def export(result, kind):
     # 导出使用保存后的全局名字，因此一次改名即可同步所有格式。
     if kind == 'json':
@@ -136,7 +147,7 @@ def export(result, kind):
         lines = [('# ' if kind == 'md' else '') + result['filename'], '',
                  '本地自动转写与声音分组；时间、文字及说话人可能有误，未标记已校对的内容请回听确认。', '']
     for i, seg in enumerate(result['segments'], 1):
-        name = result['speakers'].get(seg['speaker'], seg['speaker'])
+        name = export_speaker_name(seg['speaker'], result['speakers'].get(seg['speaker'], seg['speaker']))
         if kind == 'srt':
             lines.extend([str(i), timestamp(seg['start'], True) + ' --> ' + timestamp(seg['end'], True),
                           f'[{name}] {seg["text"]}', ''])

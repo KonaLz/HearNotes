@@ -1,10 +1,11 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::sync::{Arc, Mutex};
-use std::time::{Duration, Instant};
 use serde::Serialize;
 use serde_json::{json, Value};
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 use tauri::{AppHandle, RunEvent, State};
+use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_shell::{process::CommandChild, ShellExt};
 use tauri_plugin_updater::UpdaterExt;
 
@@ -123,7 +124,10 @@ async fn install_app_update(app: AppHandle, state: State<'_, AppState>) -> Resul
     let progress = Arc::clone(&state.update);
     set_update_progress(
         &progress,
-        UpdateProgress { phase: "checking".into(), ..Default::default() },
+        UpdateProgress {
+            phase: "checking".into(),
+            ..Default::default()
+        },
     );
 
     let update = app
@@ -161,7 +165,10 @@ async fn install_app_update(app: AppHandle, state: State<'_, AppState>) -> Resul
             move || {
                 set_update_progress(
                     &verify_progress,
-                    UpdateProgress { phase: "verifying".into(), ..Default::default() },
+                    UpdateProgress {
+                        phase: "verifying".into(),
+                        ..Default::default()
+                    },
                 );
             },
         )
@@ -170,14 +177,21 @@ async fn install_app_update(app: AppHandle, state: State<'_, AppState>) -> Resul
             let message = error.to_string();
             set_update_progress(
                 &progress,
-                UpdateProgress { phase: "error".into(), error: Some(message.clone()), ..Default::default() },
+                UpdateProgress {
+                    phase: "error".into(),
+                    error: Some(message.clone()),
+                    ..Default::default()
+                },
             );
             message
         })?;
 
     set_update_progress(
         &progress,
-        UpdateProgress { phase: "stopping".into(), ..Default::default() },
+        UpdateProgress {
+            phase: "stopping".into(),
+            ..Default::default()
+        },
     );
     let child = state
         .sidecar
@@ -188,7 +202,11 @@ async fn install_app_update(app: AppHandle, state: State<'_, AppState>) -> Resul
         if let Err(message) = stop_sidecar(child) {
             set_update_progress(
                 &progress,
-                UpdateProgress { phase: "error".into(), error: Some(message.clone()), ..Default::default() },
+                UpdateProgress {
+                    phase: "error".into(),
+                    error: Some(message.clone()),
+                    ..Default::default()
+                },
             );
             return Err(message);
         }
@@ -196,9 +214,83 @@ async fn install_app_update(app: AppHandle, state: State<'_, AppState>) -> Resul
 
     set_update_progress(
         &progress,
-        UpdateProgress { phase: "installing".into(), ..Default::default() },
+        UpdateProgress {
+            phase: "installing".into(),
+            ..Default::default()
+        },
     );
     update.install(bytes).map_err(|error| error.to_string())
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SaveExportResult {
+    saved: bool,
+    path: Option<String>,
+}
+
+/// 使用系统“另存为”窗口选择路径，并只向用户明确选择的文件写入导出内容。
+#[tauri::command]
+async fn save_export(
+    app: AppHandle,
+    suggested_name: String,
+    extension: String,
+    dialog_title: String,
+    filter_name: String,
+    contents: String,
+    utf8_bom: bool,
+) -> Result<SaveExportResult, String> {
+    if !matches!(extension.as_str(), "txt" | "md" | "srt" | "json") {
+        return Err("Unsupported export format.".into());
+    }
+
+    // set_file_name 只接收文件名，防止录音标题意外改变初始保存目录。
+    let fallback_name = format!("HearNotes_export.{extension}");
+    let mut file_name = std::path::Path::new(&suggested_name)
+        .file_name()
+        .and_then(|value| value.to_str())
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or(&fallback_name)
+        .to_string();
+    if !file_name
+        .to_ascii_lowercase()
+        .ends_with(&format!(".{extension}"))
+    {
+        file_name.push('.');
+        file_name.push_str(&extension);
+    }
+
+    let extension_for_filter = extension.clone();
+    let dialog = app
+        .dialog()
+        .file()
+        .set_title(dialog_title)
+        .set_file_name(file_name)
+        .add_filter(filter_name, &[extension_for_filter.as_str()]);
+    let selected = tauri::async_runtime::spawn_blocking(move || dialog.blocking_save_file())
+        .await
+        .map_err(|error| error.to_string())?;
+    let Some(selected) = selected else {
+        return Ok(SaveExportResult {
+            saved: false,
+            path: None,
+        });
+    };
+    let path = selected
+        .into_path()
+        .map_err(|_| "The selected destination is not a local file path.".to_string())?;
+
+    let mut bytes = Vec::with_capacity(contents.len() + if utf8_bom { 3 } else { 0 });
+    if utf8_bom {
+        bytes.extend_from_slice(&[0xEF, 0xBB, 0xBF]);
+    }
+    bytes.extend_from_slice(contents.as_bytes());
+    std::fs::write(&path, bytes).map_err(|error| error.to_string())?;
+
+    Ok(SaveExportResult {
+        saved: true,
+        path: Some(path.to_string_lossy().into_owned()),
+    })
 }
 
 fn main() {
@@ -212,12 +304,14 @@ fn main() {
 
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(state)
         .invoke_handler(tauri::generate_handler![
             check_app_update,
             get_app_update_progress,
-            install_app_update
+            install_app_update,
+            save_export
         ])
         .setup(move |app| {
             let sidecar = app.shell().sidecar("hearnotes-engine")?;
@@ -233,7 +327,12 @@ fn main() {
 
     app.run(move |_app_handle, event| {
         if matches!(event, RunEvent::Exit) {
-            if let Some(child) = run_state.sidecar.lock().expect("sidecar lock poisoned").take() {
+            if let Some(child) = run_state
+                .sidecar
+                .lock()
+                .expect("sidecar lock poisoned")
+                .take()
+            {
                 let _ = stop_sidecar(child);
             }
         }

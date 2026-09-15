@@ -2,6 +2,7 @@
 
 ## 1.1.3
 
+- Fixed desktop exports by opening the native Windows Save As dialog and writing TXT, Markdown, SRT, or JSON to the user-selected path. / 修复桌面版导出，使用 Windows 原生“另存为”窗口，将 TXT、Markdown、SRT 或 JSON 保存到用户选择的位置。
 - Reworked the Japanese interface copy for natural, consistent desktop-app wording. / 全面润色日语界面文案，使表达更自然并统一桌面软件用语。
 - Localized live transcription stages, GPU fallback notices, recording-language names, and model-update stages according to the selected display language. / 转写阶段、GPU 回退提示、录音语言名称和模型更新阶段现在会随界面语言显示。
 - Standardized untouched speaker labels as `Speaker A`, `Speaker B`, and `Needs review` across all interface languages while preserving names entered by the user. / 所有界面的默认说话人名称统一为 `Speaker A`、`Speaker B` 和 `Needs review`，用户自行输入的姓名保持不变。
