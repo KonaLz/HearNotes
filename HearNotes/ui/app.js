@@ -152,10 +152,10 @@ appUpdateDialog.innerHTML = `
 document.body.append(appUpdateDialog);
 let appUpdateProgressTimer = null;
 
-function tauriInvoke(command) {
+function tauriInvoke(command, args = {}) {
   const invoke = window.__TAURI_INTERNALS__?.invoke;
   if (!invoke) throw Error(tr("appUpdateDesktopOnly"));
-  return invoke(command);
+  return invoke(command, args);
 }
 // 模型下载入口统一放在“模型与更新”页；首页只保留快捷跳转。
 document.querySelector(".model-actions").prepend($("download-models"));
@@ -422,7 +422,7 @@ $("nav-models").onclick = async () => {
   try {
     await renderModels();
   } catch (e) {
-    toast(e.message);
+    toast(errorText(e));
   }
 };
 function choose(file) {
@@ -498,7 +498,7 @@ $("start").onclick = () => {
     } catch (e) {
       busy = false;
       refreshStart();
-      toast(e.message);
+      toast(errorText(e));
     }
   };
   xhr.onerror = () => {
@@ -554,7 +554,7 @@ function renderHistory() {
         await poll();
         toast(tr("deleteSuccess"));
       } catch (error) {
-        toast(error.message);
+        toast(errorText(error));
       }
     };
     row.append(button, remove);
@@ -579,7 +579,7 @@ async function openJob(id) {
   try {
     await updateJob(await api("/api/jobs/" + id));
   } catch (e) {
-    toast(e.message);
+    toast(errorText(e));
   }
 }
 async function updateJob(job) {
@@ -601,7 +601,7 @@ async function updateJob(job) {
   );
   $("retry-cpu").hidden = $("retry").hidden;
   $("job-error").hidden = !job.error;
-  $("job-error").textContent = job.error || "";
+  $("job-error").textContent = job.error ? errorText(job.error) : "";
   $("progress-note").textContent = progressNoteLabel(job);
   if (job.status === "complete" && job.has_result && !result) {
     const id = currentId;
@@ -650,7 +650,7 @@ $("cancel").onclick = async () => {
     await api("/api/jobs/" + currentId + "/cancel", {});
     await poll();
   } catch (e) {
-    toast(e.message);
+    toast(errorText(e));
   }
 };
 async function retry(device) {
@@ -658,7 +658,7 @@ async function retry(device) {
     await api("/api/jobs/" + currentId + "/retry", { device });
     await poll();
   } catch (e) {
-    toast(e.message);
+    toast(errorText(e));
   }
 }
 $("retry").onclick = () => retry("auto");
@@ -725,13 +725,15 @@ function renderEditor(preserveDirty = false) {
   $("save-indicator").hidden = false;
   $("save-indicator").textContent = dirty ? tr("unsavedChanges") : tr("saveIndicator");
   renderNames();
-  audio.crossOrigin = "anonymous";
-  audio.src = engineUrl("/api/jobs/" + currentId + "/audio");
-  audio.playbackRate = Number($("speed").value);
-  $("search").value = "";
-  $("only-review").checked = false;
+  if (!preserveDirty) {
+    audio.crossOrigin = "anonymous";
+    audio.src = engineUrl("/api/jobs/" + currentId + "/audio");
+    audio.playbackRate = Number($("speed").value);
+    $("search").value = "";
+    $("only-review").checked = false;
+  }
   $("warnings").hidden = !result.warnings.length;
-  $("warnings").textContent = result.warnings.join(" ");
+  $("warnings").textContent = result.warnings.map(systemText).join(" ");
   renderSegments();
 }
 function renderSegments() {
@@ -783,7 +785,7 @@ function renderSegments() {
     };
     const footer = el("div", "segment-flags");
     footer.append(
-      el("span", "flag", seg.reviewed ? "" : seg.flags.join(" · ")),
+      el("span", "flag", seg.reviewed ? "" : seg.flags.map(systemText).join(" · ")),
     );
     const checked = el("label", "check-label");
     const box = el("input");
@@ -794,7 +796,7 @@ function renderSegments() {
       markDirty();
       footer.querySelector(".flag").textContent = seg.reviewed
         ? ""
-        : seg.flags.join(" · ");
+        : seg.flags.map(systemText).join(" · ");
     };
     checked.append(box, document.createTextNode(tr("reviewedLabel")));
     footer.append(checked);
@@ -871,7 +873,7 @@ async function save() {
     toast(tr("savedToast"));
     return true;
   } catch (e) {
-    toast(e.message);
+    toast(errorText(e));
     return false;
   } finally {
     $("save").disabled = false;
@@ -922,7 +924,7 @@ $("export").onclick = async () => {
       toast(tr("exportDownloaded"));
     }
   } catch (error) {
-    toast(trf("exportFailed", { error: error.message }));
+    toast(trf("exportFailed", { error: errorText(error) }));
   } finally {
     button.disabled = false;
   }
@@ -977,7 +979,7 @@ async function renderModels() {
   $("install-update").disabled =
     d.busy || !d.plan || (!d.plan.asr_available && !d.plan.voices_available);
   $("update-status").textContent =
-    modelStageLabel(d.update.stage) + (d.update.error ? "：" + d.update.error : "");
+    modelStageLabel(d.update.stage) + (d.update.error ? "：" + errorText(d.update.error) : "");
   $("update-progress").hidden = d.update.status !== "running";
   $("update-progress").value = d.update.progress || 0;
   const bytes = d.plan
@@ -993,7 +995,7 @@ async function modelAction(action) {
     await api("/api/models/" + action, {});
     await renderModels();
   } catch (e) {
-    toast(e.message);
+    toast(errorText(e));
   }
 }
 
@@ -1105,7 +1107,7 @@ $("download-models").onclick = async () => {
     await api("/api/models/bootstrap", {});
     await poll();
   } catch (e) {
-    toast(e.message);
+    toast(errorText(e));
   }
 };
 $("install-update").onclick = async () => {
@@ -1133,7 +1135,7 @@ $("check-on-start").onchange = async () => {
     });
     toast(tr("updateSaved"));
   } catch (e) {
-    toast(e.message);
+    toast(errorText(e));
     await renderModels();
   }
 };
@@ -1152,7 +1154,7 @@ $("quit").onclick = async () => {
       el("main", "", tr("quitText")),
     );
   } catch (e) {
-    toast(e.message);
+    toast(errorText(e));
   }
 };
 poll();

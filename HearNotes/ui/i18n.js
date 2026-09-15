@@ -3,6 +3,22 @@
 // All user-facing copy lives here so wording and translations can be reviewed in one place.
 const translations = {
   zh: {
+    speakerCountMismatch: "实际分出的声音数量与指定人数不同，请回听确认。",
+    noSpeechDetected: "没有识别出讲话内容。请检查音量、语言和录音。",
+    noReliableSpeakers: "没有可靠区分出声音，文字暂标为待确认。",
+    uncertainSpeakerBoundary: "说话人边界或重叠不确定",
+    textNeedsReview: "文字需回听核对",
+    audioTooShort: "录音太短，请选择包含完整讲话的录音。",
+    audioTooLong: "当前版本支持4小时以内的录音，请先分段。",
+    editConflict: "这份记录已在另一个页面更新。请刷新后再修改，避免覆盖。",
+    invalidNames: "说话人列表无效。",
+    invalidNameLength: "说话人名称请填写1到60个字。",
+    segmentsChanged: "段落数量发生变化，请刷新重试。",
+    duplicateSegments: "段落编号重复。",
+    invalidSegment: "段落内容或说话人无效。",
+    checkModelsFirst: "请先检查更新。",
+    noPreviousModel: "还没有可以退回的旧版本。",
+
     appName: "听记", pageTitle: "听记 · 本地录音转写",
     localOnly: "本机处理 · 无需 API",
     newTranscript: "＋ 新建转写",
@@ -230,6 +246,22 @@ const translations = {
     quitText: "听记已退出。可以关闭此页面。"
   },
   ja: {
+    speakerCountMismatch: "検出された話者数が指定した人数と異なります。録音を聞き直して確認してください。",
+    noSpeechDetected: "音声を認識できませんでした。音量、録音言語、録音内容を確認してください。",
+    noReliableSpeakers: "話者を判別できなかったため、文字起こしは要確認として表示しています。",
+    uncertainSpeakerBoundary: "話者の切り替わりや発言の重なりを要確認",
+    textNeedsReview: "音声を聞き直して文字を要確認",
+    audioTooShort: "録音が短すぎます。発話が含まれる録音を選択してください。",
+    audioTooLong: "4時間以内の録音に対応しています。録音を分割してください。",
+    editConflict: "この記録は別の画面で更新されました。再読み込みしてから編集してください。",
+    invalidNames: "話者一覧が無効です。",
+    invalidNameLength: "話者名は1〜60文字で入力してください。",
+    segmentsChanged: "段落数が変わりました。再読み込みしてやり直してください。",
+    duplicateSegments: "段落番号が重複しています。",
+    invalidSegment: "段落の内容または話者が無効です。",
+    checkModelsFirst: "先に更新を確認してください。",
+    noPreviousModel: "戻せる以前のモデルがありません。",
+
     appName: "聴記", pageTitle: "聴記 · ローカル文字起こし",
     localOnly: "端末内で処理 · API不要",
     newTranscript: "＋ 新規文字起こし",
@@ -457,6 +489,22 @@ const translations = {
     quitText: "HearNotesを終了しました。この画面を閉じてください。"
   },
   en: {
+    speakerCountMismatch: "The detected speaker count differs from the specified count. Listen again to check.",
+    noSpeechDetected: "No speech was recognized. Check the volume, recording language, and audio.",
+    noReliableSpeakers: "Speakers could not be reliably identified. The transcript is marked for review.",
+    uncertainSpeakerBoundary: "Check speaker changes or overlapping speech",
+    textNeedsReview: "Listen again to check the text",
+    audioTooShort: "The recording is too short. Choose one containing complete speech.",
+    audioTooLong: "Recordings must be no longer than four hours. Split the recording first.",
+    editConflict: "This record changed in another window. Reload before editing.",
+    invalidNames: "The speaker list is invalid.",
+    invalidNameLength: "Speaker names must contain 1–60 characters.",
+    segmentsChanged: "The segment count changed. Reload and try again.",
+    duplicateSegments: "Duplicate segment IDs.",
+    invalidSegment: "Invalid segment content or speaker.",
+    checkModelsFirst: "Check for updates first.",
+    noPreviousModel: "There is no previous model to restore.",
+
     appName: "HearNotes", pageTitle: "HearNotes · Local audio transcription",
     localOnly: "Local processing · No API",
     newTranscript: "＋ New transcription",
@@ -688,3 +736,27 @@ let displayLanguage = localStorage.getItem("hearnotes.displayLanguage") ||
   ({ ja: "ja", en: "en" }[String(navigator.language || "").slice(0, 2)] || "zh");
 function tr(key) { return (translations[displayLanguage] || translations.zh)[key] || translations.zh[key] || key; }
 function trf(key, values) { return tr(key).replace(/\{(\w+)\}/g, (_, name) => values?.[name] ?? ""); }
+
+// 旧记录保留原始文本；显示时统一从翻译表读取，不改动转写正文。
+const systemTextKeys = {
+  "实际分出的声音数量与指定人数不同，请回听确认。": "speakerCountMismatch",
+  "没有识别出讲话内容。请检查音量、语言和录音。": "noSpeechDetected",
+  "没有可靠区分出声音，文字暂标为待确认。": "noReliableSpeakers",
+  "说话人边界或重叠不确定": "uncertainSpeakerBoundary",
+  "文字需回听核对": "textNeedsReview",
+  "录音太短，请选择包含完整讲话的录音。": "audioTooShort",
+  "当前版本支持4小时以内的录音，请先分段。": "audioTooLong",
+  "这份记录已在另一个页面更新。请刷新后再修改，避免覆盖。": "editConflict",
+  "说话人列表无效。": "invalidNames",
+  "说话人名称请填写1到60个字。": "invalidNameLength",
+  "段落数量发生变化，请刷新重试。": "segmentsChanged",
+  "段落编号重复。": "duplicateSegments",
+  "段落内容或说话人无效。": "invalidSegment",
+  "请先检查更新。": "checkModelsFirst",
+  "还没有可以退回的旧版本。": "noPreviousModel"
+};
+function systemText(value) { return systemTextKeys[value] ? tr(systemTextKeys[value]) : value; }
+function errorText(error) {
+  const message = typeof error === "string" ? error : error?.message;
+  return systemText(message || tr("operationIncomplete"));
+}
