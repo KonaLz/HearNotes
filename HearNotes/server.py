@@ -237,7 +237,7 @@ class Handler(BaseHTTPRequestHandler):
                     return self.reply({'ready': paths_ready(), 'busy': manager.busy(),
                                        'model_update': manager.update,
                                        'model_update_available': update_available,
-                                       'version': '1.1.5'})
+                                       'version': '1.1.6'})
             if path == '/api/jobs':
                 records = [manager.summary(f) for f in JOBS.iterdir() if f.is_dir() and (f/'job.json').is_file()]
                 return self.reply(sorted(records, key=lambda x: x.get('created', 0), reverse=True))

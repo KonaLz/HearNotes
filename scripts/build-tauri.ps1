@@ -17,6 +17,9 @@ if (!(Test-Path $vsDevCmd)) {
     throw "找不到 Visual Studio 编译环境：$vsDevCmd"
 }
 
+# Rebuild the Python backend before bundling to avoid shipping stale code.
+& (Join-Path $PSScriptRoot 'build-engine.ps1')
+
 $pathPrefix = "$cargoRoot;$nodeRoot;$nodeRoot\node_modules\npm\bin"
 
 $command = "`"$vsDevCmd`" -arch=x64 -host_arch=x64 && set `"PATH=$pathPrefix;%PATH%`" && cd /d `"$root`" && npm run tauri:build:direct"

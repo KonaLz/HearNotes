@@ -1,11 +1,11 @@
 {
-  "version": "1.1.4",
-  "notes": "听记 1.1.4：修复桌面版导出，使用 Windows 原生另存为窗口保存文件，并补齐转写结果多语言提示。\n\nHearNotes 1.1.4: Fixes desktop exports with the native Windows Save As dialog and completes localization for transcription result messages.",
-  "pub_date": "2026-09-15T11:06:36Z",
-  "platforms": {
-    "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUaFdmZjlZdGZnS3lHWXk0MVA2a2FUYld3SlN0RlczeXRTNWtRWFpxL1hKck5EL1MwVjl2UnNJaXQ5TmJpdm15eXpnMzdCSXB0c254YnZreGQ1ajlkQStDRkdVb2RVc0EwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5NDcwMzU2CWZpbGU6SGVhck5vdGVzXzEuMS40X3g2NC1zZXR1cC5leGUKSGJab2lPbWRKZ3dKZGxtZDVURlA4VjhQY0crL05vUDVLQWoyS2pFZWFxNXVOU0VnOUxjcFhNNDNPVXFtN1Q4QTJuVDAwbEplOU1PWlhuUExKejczQ2c9PQo=",
-      "url": "https://github.com/KonaLz/HearNotes/releases/download/v1.1.4/HearNotes_1.1.4_x64-setup.exe"
-    }
-  }
+    "version":  "1.1.6",
+    "notes":  "# HearNotes 1.1.6 / 听记 1.1.6\n\n## 中文\n- 修复 1.1.5 安装包误用旧版后台引擎，导致导出说明仍显示中文的问题。\n- TXT 和 Markdown 的说明、待核提示跟随中文、日文或英文界面语言。\n- 打包前自动重建后台引擎，构建失败时停止打包。\n- 新增一键签名命令 `npm run release:sign`，生成安装包签名及更新清单。\n\n## English\n- Fixed a stale backend engine bundled in 1.1.5 that left exported annotations in Chinese.\n- TXT and Markdown notes and review flags follow the Chinese, Japanese, or English interface language.\n- Rebuild the backend before packaging and stop packaging if the engine build fails.\n- Added `npm run release:sign` to generate the installer signature and updater manifest.",
+    "pub_date":  "2026-09-15T13:22:57Z",
+    "platforms":  {
+                      "windows-x86_64":  {
+                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUaFdmZjlZdGZnS3kzV3pVcFpZMWw2TXpPSGlwbGwwT1BFbWxJYi8veC8vclNiTUc1Z0ZEWjdESmNtOTRVdFZuMlV4N1pKWDZMZ05pNmJ0cTBNMm5ZR09NK0pHYjhmWFFFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5NDc4NTc3CWZpbGU6SGVhck5vdGVzXzEuMS42X3g2NC1zZXR1cC5leGUKNDNkdXJrT2FqL0RiR1lNVXFZYVZwVzltVnpkM2VPNk9wVEF2YkR4WkIrWWhYaURONFJPQkJMbWIydlh4blFLT1I2eVZiOE0xcTJKV1FwcHdkM05EQkE9PQo=",
+                                             "url":  "https://github.com/KonaLz/HearNotes/releases/download/v1.1.6/HearNotes_1.1.6_x64-setup.exe"
+                                         }
+                  }
 }
