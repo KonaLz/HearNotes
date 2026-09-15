@@ -267,7 +267,7 @@ class Handler(BaseHTTPRequestHandler):
                     result = read_json(folder / 'result.json')
                     if result is None: raise ValueError('请等待转写完成。')
                     title = Path(result['filename']).stem + '_转写.' + kind
-                    return self.send_bytes(export(result, kind).encode('utf-8-sig' if kind=='txt' else 'utf-8'),
+                    return self.send_bytes(export(result, kind, query.get('language', ['zh'])[0]).encode('utf-8-sig' if kind=='txt' else 'utf-8'),
                         'application/octet-stream', headers={'Content-Disposition': "attachment; filename*=UTF-8''" + urllib.parse.quote(title)})
             return self.reply({'error': '页面不存在。'}, 404)
         except (ValueError, OSError) as error: self.reply({'error': str(error)}, 400)

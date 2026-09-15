@@ -138,14 +138,22 @@ def export_speaker_name(identity, name):
         return 'Speaker ' + identity
     return value or identity
 
-def export(result, kind):
+EXPORT_LABELS = {
+    'zh': ('本地自动转写与声音分组；时间、文字及说话人可能有误，未标记已校对的内容请回听确认。', '待核', '说话人边界或重叠不确定', '文字需回听核对'),
+    'ja': ('ローカルで自動文字起こし・話者分離を行った結果です。時刻、文字、話者に誤りがある場合があります。未確認の箇所は録音を聞き直してください。', '要確認', '話者の切り替わりや発言の重なりを要確認', '音声を聞き直して文字を要確認'),
+    'en': ('Automatically transcribed and grouped by voice locally. Timestamps, text, and speakers may be incorrect. Listen again to check unreviewed content.', 'Review needed', 'Check speaker changes or overlapping speech', 'Listen again to check the text'),
+}
+
+def export(result, kind, language='zh'):
+    labels = EXPORT_LABELS.get(language, EXPORT_LABELS['zh'])
+    flag_labels = dict(zip(EXPORT_LABELS['zh'][2:], labels[2:]))
     # 导出使用保存后的全局名字，因此一次改名即可同步所有格式。
     if kind == 'json':
         return json.dumps(result, ensure_ascii=False, indent=2)
     lines = []
     if kind != 'srt':
         lines = [('# ' if kind == 'md' else '') + result['filename'], '',
-                 '本地自动转写与声音分组；时间、文字及说话人可能有误，未标记已校对的内容请回听确认。', '']
+                 labels[0], '']
     for i, seg in enumerate(result['segments'], 1):
         name = export_speaker_name(seg['speaker'], result['speakers'].get(seg['speaker'], seg['speaker']))
         if kind == 'srt':
@@ -156,6 +164,6 @@ def export(result, kind):
             if kind == 'md': label = '**' + label.replace('*', '\\*') + '**'
             lines.extend([label, seg['text']])
             if seg.get('flags') and not seg.get('reviewed'):
-                lines.append('［待核：' + '；'.join(seg['flags']) + '］')
+                lines.append('[' + labels[1] + ': ' + '; '.join(flag_labels.get(f, f) for f in seg['flags']) + ']')
             lines.append('')
     return '\n'.join(lines)

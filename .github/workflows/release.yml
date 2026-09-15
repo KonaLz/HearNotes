@@ -1,45 +1,26 @@
-name: Windows release
-
+name: Source checks
 on:
   push:
+    branches: [main]
     tags: ['v*.*.*']
+  pull_request:
   workflow_dispatch:
-
 permissions:
-  contents: write
-
+  contents: read
 jobs:
-  build-windows:
-    runs-on: windows-latest
+  check:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - uses: dtolnay/rust-toolchain@stable
-      - name: Install frontend dependencies
-        run: npm install
-      - name: Install Python build dependencies
-        run: python -m pip install pyinstaller
-      - name: Build Python engine sidecar
-        shell: pwsh
-        run: ./scripts/build-engine.ps1
-      - name: Build Tauri installers
-        run: npm run tauri build
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-      - name: Publish release artifacts
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          generate_release_notes: false
-          body_path: CHANGELOG.md
-          files: |
-            src-tauri/target/release/bundle/nsis/*
-            src-tauri/target/release/bundle/msi/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          node-version: 24
+      - name: Validate frontend and export interaction
+        run: |
+          node --check HearNotes/ui/app.js
+          node --check HearNotes/ui/i18n.js
+          node scripts/test-export.cjs
+      - name: Validate Python syntax
+        run: python3 -m compileall -q HearNotes/core.py HearNotes/server.py HearNotes/worker.py
+      # Signed installers are built on the prepared local Windows machine.
+      # A fresh hosted runner does not contain the excluded native runtime libraries.

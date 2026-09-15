@@ -904,7 +904,7 @@ $("export").onclick = async () => {
   try {
     const format = $("export-format").value;
     const response = await fetch(
-      engineUrl("/api/jobs/" + currentId + "/export?format=" + format),
+      engineUrl("/api/jobs/" + currentId + "/export?format=" + format + "&language=" + encodeURIComponent(displayLanguage)),
     );
     if (!response.ok) throw Error(tr("operationIncomplete"));
     const contents = await response.text();
