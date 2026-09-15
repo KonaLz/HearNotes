@@ -28,11 +28,18 @@ def run(job):
     asr_path = active['asr']['path']
     progress_lock = threading.Lock()
     progress_value = 0
+    stage_keys = {
+        '读取录音': 'readingAudio',
+        '转写文字': 'transcribing',
+        '按声音区分说话人': 'diarizing',
+        '对齐文字与说话人': 'aligning',
+    }
     def progress(stage, value, **kwargs):
         nonlocal progress_value
         with progress_lock:
             progress_value = max(progress_value, value)
             atomic_json(folder / 'progress.json', {'status': 'running', 'stage': stage,
+                'stage_key': stage_keys.get(stage, 'processing'),
                 'progress': round(progress_value, 1), 'elapsed': round(time.time() - started), **kwargs})
     progress('读取录音', 2)
     audio = decode_audio(str(folder / options['audio']), sampling_rate=16000)
@@ -175,7 +182,8 @@ def run(job):
               'model_versions': active,
               'method': 'Whisper large-v3 + sherpa-onnx segmentation-3.0 / 3D-Speaker; word-time alignment'}
     atomic_json(folder / 'result.json', result)
-    atomic_json(folder / 'progress.json', {'status': 'complete', 'stage': '已完成', 'progress': 100,
+    atomic_json(folder / 'progress.json', {'status': 'complete', 'stage': '已完成',
+                'stage_key': 'complete', 'progress': 100,
                 'elapsed': round(time.time()-started), 'duration': duration, 'segments': len(blocks),
                 'speaker_count': len(names), 'device': device, 'asr_device': device,
                 'speaker_device': speaker_device,
@@ -189,6 +197,7 @@ def main(job=None):
         folder = Path(job)
         (folder / 'error.log').write_text(traceback.format_exc(), encoding='utf-8')
         atomic_json(folder / 'progress.json', {'status': 'error', 'stage': '处理未完成',
+            'stage_key': 'failed',
             'progress': 0, 'error': str(exc) or type(exc).__name__})
         sys.exit(1)
 

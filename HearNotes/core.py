@@ -86,9 +86,10 @@ def align_segments(segments, turns):
                                'speaker': sp, 'text': text, 'flags': reasons, 'reviewed': False})
     for block in blocks:
         block['text'] = block['text'].strip()
-    names = {sp: '说话人 ' + sp for sp in mapping.values()}
+    # A/B/C are language-neutral internal IDs; keep their default display names consistent across UI languages.
+    names = {sp: 'Speaker ' + sp for sp in mapping.values()}
     if any(b['speaker'] == UNKNOWN for b in blocks):
-        names[UNKNOWN] = '待确认'
+        names[UNKNOWN] = 'Needs review'
     return blocks, names, canonical
 
 def apply_edits(result, payload):

@@ -53,6 +53,10 @@ flowchart LR
 5. 核心逻辑把文本段与说话人时间段对齐，写入 `result.json`、`raw_segments.jsonl` 和 `voice_turns.json`。
 6. 前端读取结果，支持逐段回听、编辑、统一修改发言人姓名及导出 TXT、Markdown、SRT、JSON。
 
+默认说话人名称统一使用 `Speaker A`、`Speaker B` 等英文形式，不确定项使用 `Needs review`。旧记录中的“说话人 A”“話者 A”等系统默认值会在界面中兼容显示为英文；用户自行修改的姓名保持原样。
+
+处理进度使用与语言无关的 `stage_key`（例如 `preparing`、`transcribing`、`diarizing`）在 Python 引擎和前端之间传递。前端再根据当前界面语言从 `ui/i18n.js` 取出对应文案，因此处理中切换中文、日文或英文时，进度标题和已知的回退提示会立即更新。旧任务中仅保存的中文阶段名称仍通过兼容映射显示。录音语言只用于语音识别，与界面显示语言相互独立。
+
 ## 5. 模型管理
 
 模型不随安装包发布。模型页面从官方来源获取版本信息，下载到 `data/models/versions/`，文件先写入 `.part` 临时文件，完成长度和 SHA-256 校验后才改名。

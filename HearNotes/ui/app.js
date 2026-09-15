@@ -4,6 +4,7 @@ const ENGINE_ORIGIN = "http://127.0.0.1:28661";
 const engineUrl = (path) => new URL(path, ENGINE_ORIGIN).href;
 let selectedFile = null,
   currentId = null,
+  activeJob = null,
   result = null,
   dirty = false,
   busy = false,
@@ -26,6 +27,83 @@ const statusNames = {
 function statusLabel(status) {
   return tr(statusNames[status] || status || "preparing");
 }
+const legacyProgressStages = {
+  "正在准备": "preparing",
+  "读取录音": "readingAudio",
+  "转写文字": "transcribing",
+  "按声音区分说话人": "diarizing",
+  "对齐文字与说话人": "aligning",
+  "已完成": "complete",
+  "处理未完成": "failed",
+  "上次运行被中断，可重新处理": "interrupted",
+  "已取消，可重新处理": "cancelled",
+  "任务意外退出；可重新处理": "unexpectedExit",
+};
+const progressStageKeys = {
+  preparing: "progressPreparing",
+  readingAudio: "progressReadingAudio",
+  transcribing: "progressTranscribing",
+  diarizing: "progressDiarizing",
+  aligning: "progressAligning",
+  complete: "progressComplete",
+  failed: "progressFailed",
+  interrupted: "progressInterrupted",
+  cancelled: "progressCancelled",
+  unexpectedExit: "progressUnexpectedExit",
+  processing: "progressProcessing",
+};
+const legacyProgressNotes = {
+  "显卡暂不可用，已切换为CPU；处理速度会较慢。": "noteGpuUnavailable",
+  "显卡执行失败，已切换为CPU重新转写。": "noteGpuFallback",
+  "说话人分离显卡不可用，已切换为CPU。": "noteDiarizationGpuUnavailable",
+  "说话人分离显卡执行失败，已切换为CPU。": "noteDiarizationGpuFallback",
+};
+function progressStageLabel(job) {
+  const stage = job?.stage_key || legacyProgressStages[job?.stage];
+  return stage && progressStageKeys[stage] ? tr(progressStageKeys[stage]) : job?.stage || tr("progressPreparing");
+}
+function progressNoteLabel(job) {
+  if (job?.note) {
+    return job.note
+      .split("; ")
+      .map((note) => legacyProgressNotes[note] ? tr(legacyProgressNotes[note]) : note)
+      .join(" ");
+  }
+  return job?.processed
+    ? tr("processedTo") + " " + clock(job.processed) + ". " + tr("keepAwakeShort")
+    : tr("keepAwake");
+}
+function recordingLanguageLabel(language) {
+  const languageKeys = { ja: "langJa", zh: "langZh", en: "langEn", ko: "langKo" };
+  return languageKeys[language] ? tr(languageKeys[language]) : tr("languageUnknown");
+}
+const modelStageKeys = {
+  "尚未检查更新": "modelStageIdle",
+  "已切换到上一版模型": "modelStageRolledBack",
+  "正在检查可下载模型": "modelStageChecking",
+  "准备下载": "modelStagePreparing",
+  "有可用更新／可同步官方版本": "modelStageAvailable",
+  "当前模型已是最新版本": "modelStageCurrent",
+  "使用已下载的转写模型": "modelStageReuseAsr",
+  "使用已下载的说话人模型": "modelStageReuseVoices",
+  "验证模型能否加载": "modelStageVerifying",
+  "模型已更新，下一次转写将使用新版": "modelStageComplete",
+  "更新未完成，原模型仍可使用": "modelStageFailedKept",
+  "模型安装失败，尚未启用": "modelStageInstallFailed",
+};
+function modelStageLabel(stage) {
+  if (!stage) return "";
+  if (modelStageKeys[stage]) return tr(modelStageKeys[stage]);
+  const asrPrefix = "下载转写模型：";
+  const voicePrefix = "下载说话人模型：";
+  if (stage.startsWith(asrPrefix)) {
+    return trf("modelStageDownloadingAsr", { file: stage.slice(asrPrefix.length) });
+  }
+  if (stage.startsWith(voicePrefix)) {
+    return trf("modelStageDownloadingVoices", { file: stage.slice(voicePrefix.length) });
+  }
+  return stage;
+}
 const audio = $("audio");
 
 // 软件更新由 Tauri 负责下载和验签；此卡片与模型更新分开显示。
@@ -37,7 +115,7 @@ appUpdateCard.innerHTML = `
       <h2 id="app-update-title"></h2>
       <p id="app-update-description" class="muted"></p>
     </div>
-    <span id="app-version" class="pill">1.1.2</span>
+    <span id="app-version" class="pill">1.1.3</span>
   </div>
   <div class="model-actions">
     <button id="check-app-update" class="primary"></button>
@@ -197,15 +275,15 @@ function applyDisplayLanguage() {
   applyJobLanguage();
   applyModelsLanguage();
   renderHistory();
-  if (result) renderEditor();
+  if (result) renderEditor(true);
   if (view === "models" && modelData) renderModels();
 }
 function applyJobLanguage() {
   const viewJob = $("view-job");
   viewJob.querySelector(".eyebrow").textContent = tr("recordingDesk");
   $("save-indicator").textContent = dirty ? tr("unsaved") : tr("allSaved");
-  $("stage").textContent = tr("preparing");
-  $("progress-note").textContent = tr("keepAwake");
+  $("stage").textContent = activeJob ? progressStageLabel(activeJob) : tr("progressPreparing");
+  $("progress-note").textContent = activeJob ? progressNoteLabel(activeJob) : tr("keepAwake");
   $("cancel").textContent = tr("cancel"); $("retry").textContent = tr("retry"); $("retry-cpu").textContent = tr("retryCpu");
   viewJob.querySelector(".names-card h2").textContent = tr("namesTitle");
   viewJob.querySelector(".names-card p").textContent = tr("namesHint");
@@ -324,6 +402,7 @@ async function newView() {
   if (!(await canLeave())) return;
   dirty = false;
   result = null;
+  activeJob = null;
   currentId = null;
   audio.pause();
   show("new");
@@ -406,6 +485,7 @@ $("start").onclick = () => {
       if (xhr.status !== 200) throw Error(data.error || tr("uploadError"));
       currentId = data.id;
       result = null;
+      activeJob = { stage_key: "preparing" };
       dirty = false;
       show("job");
       $("editor").hidden = true;
@@ -441,7 +521,9 @@ function renderHistory() {
       el(
         "small",
         "",
-        new Date(job.created * 1000).toLocaleDateString("zh-CN") +
+        new Date(job.created * 1000).toLocaleDateString(
+          { zh: "zh-CN", ja: "ja-JP", en: "en-US" }[displayLanguage] || undefined,
+        ) +
           " · " +
           statusLabel(job.status) || job.stage,
       ),
@@ -464,6 +546,7 @@ function renderHistory() {
         if (currentId === job.id) {
           currentId = null;
           result = null;
+          activeJob = null;
           dirty = false;
           audio.pause();
           show("new");
@@ -486,6 +569,7 @@ async function openJob(id) {
   if (!(await canLeave())) return;
   dirty = false;
   result = null;
+  activeJob = null;
   currentId = id;
   audio.pause();
   show("job");
@@ -499,14 +583,15 @@ async function openJob(id) {
   }
 }
 async function updateJob(job) {
+  activeJob = job;
   $("job-title").textContent = job.filename;
   $("job-subtitle").textContent =
     (job.duration ? clock(job.duration) + " · " : "") +
-    (job.language || tr("languageUnknown")) +
+    recordingLanguageLabel(job.language) +
     " · " +
     statusLabel(job.status);
   $("progress-card").hidden = job.status === "complete" && job.has_result;
-  $("stage").textContent = job.stage;
+  $("stage").textContent = progressStageLabel(job);
   $("progress").value = job.progress || 0;
   $("percent").textContent = (job.progress || 0) + "%";
   $("elapsed").textContent = job.elapsed ? tr("elapsed") + " " + clock(job.elapsed) : "";
@@ -517,11 +602,7 @@ async function updateJob(job) {
   $("retry-cpu").hidden = $("retry").hidden;
   $("job-error").hidden = !job.error;
   $("job-error").textContent = job.error || "";
-  $("progress-note").textContent =
-    job.note ||
-    (job.processed
-      ? tr("processedTo") + " " + clock(job.processed) + ". " + tr("keepAwakeShort")
-      : tr("keepAwake"));
+  $("progress-note").textContent = progressNoteLabel(job);
   if (job.status === "complete" && job.has_result && !result) {
     const id = currentId;
     const loaded = await api("/api/jobs/" + id + "/result");
@@ -582,8 +663,23 @@ async function retry(device) {
 }
 $("retry").onclick = () => retry("auto");
 $("retry-cpu").onclick = () => retry("cpu");
+function isDefaultSpeakerName(id, name) {
+  const value = String(name || "").trim();
+  if (id === "?") {
+    return ["待确认", "待確認", "要確認", "確認待ち", "Needs review"].includes(value);
+  }
+  const match = value.match(/^(?:说话人|說話人|話者|Speaker)\s*(.+)$/i);
+  return Boolean(match && match[1] === id);
+}
+function displayedSpeakerName(id) {
+  const stored = result.speakers[id];
+  if (!stored || isDefaultSpeakerName(id, stored)) {
+    return id === "?" ? "Needs review" : `Speaker ${id}`;
+  }
+  return stored;
+}
 function speakerTitle(id) {
-  return `${id} · ${result.speakers[id] || tr("pendingSpeaker")}`;
+  return `${id} · ${displayedSpeakerName(id)}`;
 }
 function fillOptions(select, all = false) {
   const old = select.value;
@@ -606,7 +702,7 @@ function renderNames() {
     const label = el("label", "name-field");
     const badge = el("span", "avatar color-" + id, id);
     const input = el("input", "name-input");
-    input.value = name;
+    input.value = displayedSpeakerName(id);
     input.maxLength = 60;
     input.setAttribute("aria-label", tr("speakerNameAria") + " " + id);
     input.oninput = () => {
@@ -622,12 +718,12 @@ function renderNames() {
   $("speaker-names").replaceChildren(frag);
   fillOptions($("filter-speaker"), true);
 }
-function renderEditor() {
-  // 进入编辑器时建立一次全局改名区域和逐段文字/说话人控件。
+function renderEditor(preserveDirty = false) {
+  // 进入编辑器时建立一次全局改名区域和逐段文字/说话人控件。切换界面语言时保留尚未保存的修改。
+  if (!preserveDirty) dirty = false;
   $("editor").hidden = false;
   $("save-indicator").hidden = false;
-  $("save-indicator").textContent = tr("saveIndicator");
-  dirty = false;
+  $("save-indicator").textContent = dirty ? tr("unsavedChanges") : tr("saveIndicator");
   renderNames();
   audio.crossOrigin = "anonymous";
   audio.src = engineUrl("/api/jobs/" + currentId + "/audio");
@@ -745,7 +841,7 @@ $("add-speaker").onclick = () => {
     toast(tr("maxSpeakers"));
     return;
   }
-  result.speakers[id] = tr("defaultSpeakerName") + " " + id;
+  result.speakers[id] = "Speaker " + id;
   renderNames();
   renderSegments();
   markDirty();
@@ -852,7 +948,7 @@ async function renderModels() {
   $("install-update").disabled =
     d.busy || !d.plan || (!d.plan.asr_available && !d.plan.voices_available);
   $("update-status").textContent =
-    d.update.stage + (d.update.error ? "：" + d.update.error : "");
+    modelStageLabel(d.update.stage) + (d.update.error ? "：" + d.update.error : "");
   $("update-progress").hidden = d.update.status !== "running";
   $("update-progress").value = d.update.progress || 0;
   const bytes = d.plan

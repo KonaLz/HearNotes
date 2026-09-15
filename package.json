@@ -1,15 +1,15 @@
 {
   "name": "hearnotes",
   "private": true,
-  "version": "1.1.2",
+  "version": "1.1.3",
   "license": "MIT",
   "repository": "https://github.com/KonaLz/HearNotes",
   "scripts": {
-   "tauri": "tauri",
-   "tauri:dev": "tauri dev",
-   "tauri:build": "powershell -ExecutionPolicy Bypass -File scripts/build-tauri.ps1",
-   "tauri:build:direct": "tauri build",
-   "build:engine": "powershell -ExecutionPolicy Bypass -File scripts/build-engine.ps1"
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "powershell -ExecutionPolicy Bypass -File scripts/build-tauri.ps1",
+    "tauri:build:direct": "tauri build",
+    "build:engine": "powershell -ExecutionPolicy Bypass -File scripts/build-engine.ps1"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.8.0"

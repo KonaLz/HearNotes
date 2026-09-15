@@ -1,5 +1,12 @@
 # Changelog / 更新日志
 
+## 1.1.3
+
+- Reworked the Japanese interface copy for natural, consistent desktop-app wording. / 全面润色日语界面文案，使表达更自然并统一桌面软件用语。
+- Localized live transcription stages, GPU fallback notices, recording-language names, and model-update stages according to the selected display language. / 转写阶段、GPU 回退提示、录音语言名称和模型更新阶段现在会随界面语言显示。
+- Standardized untouched speaker labels as `Speaker A`, `Speaker B`, and `Needs review` across all interface languages while preserving names entered by the user. / 所有界面的默认说话人名称统一为 `Speaker A`、`Speaker B` 和 `Needs review`，用户自行输入的姓名保持不变。
+- Preserved unsaved edits when switching the interface language and retained compatibility with progress data and speaker labels created by older versions. / 切换界面语言时保留未保存的修改，并兼容旧版本生成的进度数据和默认说话人名称。
+
 ## 1.1.2
 
 - Published a uniquely versioned update package to verify the new in-app download progress dialog from 1.1.1. / 发布独立版本的更新包，用于从 1.1.1 实际验证新版应用内下载进度弹窗。

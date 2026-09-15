@@ -45,7 +45,8 @@ class Manager:
         for folder in JOBS.iterdir():
             p = read_json(folder / 'progress.json', {})
             if p.get('status') in {'running', 'uploading'}:
-                atomic_json(folder / 'progress.json', {'status': 'interrupted', 'stage': '上次运行被中断，可重新处理', 'progress': 0})
+                atomic_json(folder / 'progress.json', {'status': 'interrupted', 'stage': '上次运行被中断，可重新处理',
+                    'stage_key': 'interrupted', 'progress': 0})
 
     def busy(self):
         return self.maintenance or (self.process is not None and self.process.poll() is None)
@@ -69,14 +70,16 @@ class Manager:
                     creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
             finally: log.close()
             self.active_id = folder.name
-            atomic_json(folder / 'progress.json', {'status': 'running', 'stage': '正在准备', 'progress': 0})
+            atomic_json(folder / 'progress.json', {'status': 'running', 'stage': '正在准备',
+                'stage_key': 'preparing', 'progress': 0})
 
     def summary(self, folder):
         meta = read_json(folder / 'job.json', {})
         status = read_json(folder / 'progress.json', {'status': 'interrupted', 'stage': '尚未完成', 'progress': 0})
         if (folder.name == self.active_id and self.process is not None and self.process.poll() is not None
                 and status.get('status') == 'running'):
-            status.update(status='error', stage='任务意外退出；可重新处理', error='请重试，或改用CPU模式。日志保存在记录目录。')
+            status.update(status='error', stage='任务意外退出；可重新处理', stage_key='unexpectedExit',
+                          error='请重试，或改用CPU模式。日志保存在记录目录。')
             atomic_json(folder / 'progress.json', status)
         return {**meta, **status, 'id': folder.name, 'has_result': (folder / 'result.json').is_file()}
 
@@ -88,7 +91,8 @@ class Manager:
             self.process.terminate()
             try: self.process.wait(timeout=10)
             except subprocess.TimeoutExpired: self.process.kill(); self.process.wait()
-            atomic_json(folder / 'progress.json', {'status': 'cancelled', 'stage': '已取消，可重新处理', 'progress': 0})
+            atomic_json(folder / 'progress.json', {'status': 'cancelled', 'stage': '已取消，可重新处理',
+                'stage_key': 'cancelled', 'progress': 0})
 
     def delete(self, identity):
         """删除一条录音及其转写、播放文件和日志。"""
@@ -233,7 +237,7 @@ class Handler(BaseHTTPRequestHandler):
                     return self.reply({'ready': paths_ready(), 'busy': manager.busy(),
                                        'model_update': manager.update,
                                        'model_update_available': update_available,
-                                       'version': '1.1.2'})
+                                       'version': '1.1.3'})
             if path == '/api/jobs':
                 records = [manager.summary(f) for f in JOBS.iterdir() if f.is_dir() and (f/'job.json').is_file()]
                 return self.reply(sorted(records, key=lambda x: x.get('created', 0), reverse=True))
